@@ -1,0 +1,21 @@
+{
+  "name": "slim-pig",
+  "version": "1.0.0",
+  "description": "苗条猪",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npm run eslint",
+    "eslint": "eslint ."
+  },
+  "author": "高国文 (funte@outlook.com)",
+  "homepage": "https://github.com/funte/slim-pig",
+  "repository": "https://github.com/funte/slim-pig",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
+}
