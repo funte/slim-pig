@@ -1,31 +1,41 @@
 const fs = require("fs");
 const path = require("path");
 
-function walk(dir, callback) {
+function walk(dir, fileCallback = null, directoryCallback = null) {
   fs.readdir(dir, function (err, files) {
     if (err) throw err;
     files.forEach(function (file) {
-      var filepath = path.join(dir, file);
-      fs.stat(filepath, function (err, stats) {
+      var filePath = path.join(dir, file);
+      fs.stat(filePath, function (err, stats) {
         if (stats.isDirectory()) {
-          walk(filepath, callback);
+          if (directoryCallback) {
+            directoryCallback(filepath);
+          }
+          walk(filePath, fileCallback, directoryCallback);
         } else if (stats.isFile()) {
-          callback(filepath);
+          if (fileCallback) {
+            fileCallback(filePath);
+          }
         }
       });
     });
   });
 }
 
-function walkSync(dir, callback) {
+function walkSync(dir, fileCallback = null, directoryCallback = null) {
   var files = fs.readdirSync(dir);
   files.forEach(file => {
-    var filepath = path.join(dir, file);
-    var stat = fs.statSync(filepath)
+    var filePath = path.join(dir, file);
+    var stat = fs.statSync(filePath)
     if (stat.isDirectory()) {
-      walkSync(filepath, callback);
+      if (directoryCallback) {
+        directoryCallback(directoryCallback);
+      }
+      walkSync(filePath, fileCallback, directoryCallback);
     } else {
-      callback(filepath);
+      if (fileCallback) {
+        fileCallback(filePath);
+      }
     }
   });
 }
