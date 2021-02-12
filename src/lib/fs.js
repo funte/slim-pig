@@ -28,7 +28,7 @@ const walkCurrentSync = (dir, fileCallback, directoryCallback = null) => {
     if (stat.isDirectory()) {
       if (directoryCallback)
         directoryCallback(filePath);
-    } else {
+    } else if (stat.isFile()) {
       if (fileCallback)
         fileCallback(filePath);
     }
@@ -64,7 +64,7 @@ const walkSync = (dir, fileCallback = null, directoryCallback = null) => {
       if (directoryCallback)
         directoryCallback(filePath);
       walkSync(filePath, fileCallback, directoryCallback);
-    } else {
+    } else if (stat.isFile()) {
       if (fileCallback) {
         fileCallback(filePath);
       }
@@ -72,9 +72,41 @@ const walkSync = (dir, fileCallback = null, directoryCallback = null) => {
   });
 }
 
+const walkSyncEx = function (dir, fileCallback = null, directoryCallback = null) {
+  const files = fs.readdirSync(dir);
+
+  for (let file of files) {
+    file = path.resolve(dir, file);
+    const stat = fs.statSync(file);
+    let op = {
+      done: false,
+      skip: false
+    };
+    if (stat.isDirectory()) {
+      if (directoryCallback) {
+        op = directoryCallback(file);
+      }
+      if (op && op.done) {
+        return;
+      }
+      if (!op || !op.skip) {
+        walkSync(file, fileCallback, directoryCallback);
+      }
+    } else if (stat.isFile()) {
+      if (fileCallback) {
+        op = fileCallback(file);
+      }
+      if (op && op.done) {
+        return;
+      }
+    }
+  }
+}
+
 module.exports = {
   walkCurrent: walkCurrent,
   walkCurrentSync: walkCurrentSync,
   walk: walk,
-  walkSync, walkSync
+  walkSync: walkSync,
+  walkSyncEx: walkSyncEx
 };
