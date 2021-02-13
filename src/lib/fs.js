@@ -103,10 +103,23 @@ const walkSyncEx = function (dir, fileCallback = null, directoryCallback = null)
   }
 }
 
+/**
+ * Is a sub directory.
+ * See https://stackoverflow.com/a/45242825/5906199.
+ * @param {string} child Sub directory to test.
+ * @param {string} parent The parent directory.
+ * @return {Boolean}.
+ */
+const isSubDirectory = function (child, parent) {
+  const relative = path.relative(parent, child);
+  return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+}
+
 module.exports = {
   walkCurrent: walkCurrent,
   walkCurrentSync: walkCurrentSync,
   walk: walk,
   walkSync: walkSync,
-  walkSyncEx: walkSyncEx
+  walkSyncEx: walkSyncEx,
+  isSubDirectory: isSubDirectory
 };

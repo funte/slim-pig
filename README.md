@@ -16,3 +16,5 @@
     同步遍历目录  
   + walkSyncEx  
     同步遍历目录. 对于文件回调函数 `fileCallback`, 如果返回 `{ done: true }` 则停止遍历; 对于目录回调函数 `directoryCallback` 如果返回 `{ done: true }` 停止遍历, 如果返回 `{ skip: true }` 则跳过当前目录.  
+  + isSubDirectory  
+    Is a sub directory. See https://stackoverflow.com/a/45242825/5906199.  

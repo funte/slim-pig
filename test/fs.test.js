@@ -1,5 +1,5 @@
 const pig = require('../src/index.js');
-var assert = require('assert');
+const { assert, expect } = require('chai');
 var path = require('path');
 
 describe('fs', function () {
@@ -12,7 +12,7 @@ describe('fs', function () {
         filePath => {
           const basename = path.basename(filePath);
           const index = files.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           files.splice(index, 1);
           if (files.length == 0 && directories.length == 0) {
             done();
@@ -21,7 +21,7 @@ describe('fs', function () {
         directoryPath => {
           const basename = path.basename(directoryPath);
           const index = directories.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           directories.splice(index, 1);
           if (files.length == 0 && directories.length == 0) {
             done();
@@ -39,17 +39,17 @@ describe('fs', function () {
         filePath => {
           const basename = path.basename(filePath);
           const index = files.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           files.splice(index, 1);
         },
         directoryPath => {
           const basename = path.basename(directoryPath);
           const index = directories.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           directories.splice(index, 1);
         });
-      assert.strictEqual(files.length, 0);
-      assert.strictEqual(directories.length, 0);
+      assert.equal(files.length, 0);
+      assert.equal(directories.length, 0);
     });
   });
 
@@ -61,7 +61,7 @@ describe('fs', function () {
         filePath => {
           const basename = path.basename(filePath);
           const index = files.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           files.splice(index, 1);
           if (files.length == 0 && directories.length == 0) {
             done();
@@ -70,7 +70,7 @@ describe('fs', function () {
         directoryPath => {
           const basename = path.basename(directoryPath);
           const index = directories.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           directories.splice(index, 1);
           if (files.length == 0 && directories.length == 0) {
             done();
@@ -87,18 +87,18 @@ describe('fs', function () {
       pig.fs.walkSync(path.resolve('test/.fs.test'),
         filePath => {
           const index = files.indexOf(path.basename(filePath));
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           files.splice(index, 1);
         },
         directoryPath => {
           const basename = path.basename(directoryPath);
           const index = directories.indexOf(basename);
-          assert.notStrictEqual(index, -1);
+          assert.notEqual(index, -1);
           directories.splice(index, 1);
         }
       );
-      assert.strictEqual(files.length, 0);
-      assert.strictEqual(directories.length, 0);
+      assert.equal(files.length, 0);
+      assert.equal(directories.length, 0);
     });
   });
 
@@ -115,7 +115,7 @@ describe('fs', function () {
         }
       );
 
-      assert.strictEqual(filesFound.length, 1);
+      assert.equal(filesFound.length, 1);
     });
 
     it('同步遍历目录, 目录回调函数 测试 done operation', () => {
@@ -134,7 +134,7 @@ describe('fs', function () {
         }
       );
 
-      assert.strictEqual(filesFound.length, 1);
+      assert.equal(filesFound.length, 1);
     });
 
     it('同步遍历目录, 目录回调函数 测试 skip operation', () => {
@@ -153,7 +153,29 @@ describe('fs', function () {
         }
       );
 
-      assert.strictEqual(filesFound.length, 1);
+      assert.equal(filesFound.length, 1);
+    });
+  });
+
+  describe('#isSubDirectory', () => {
+    it('test', () => {
+      const args = [
+        ['d:/down', 'd:/', true],
+        ['/d/down', '/d', true],
+        ['d:/', 'd:/down', false],
+        ['/d', '/d/down', false],
+        ['d:/down', 'd:/down', false],
+        ['/d/down', '/d/down', false],
+        ['d:/down/up/../../down', 'd:/', true],
+        ['/d/down/up/../../down', '/d', true]
+      ];
+      args.forEach(values => {
+        assert.equal(
+          pig.fs.isSubDirectory(values[0], values[1]),
+          values[2],
+          `\"${values[0]}\" ${values[2] ? 'is' : 'not'} sub directory of \"${values[1]}\"`
+        );
+      })
     });
   });
 });
