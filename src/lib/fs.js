@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const uniq = require('lodash.uniq');
 
 const walkCurrent = (dir, fileCallback = null, directoryCallback = null) => {
   fs.readdir(dir, (err, files) => {
