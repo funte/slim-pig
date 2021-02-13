@@ -115,6 +115,31 @@ const isSubDirectory = function (child, parent) {
   return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
 }
 
+/**
+ * Seprate the directories and files path.
+ * @param {string} filesDirs Directories and files path.
+ * @param {Function} fileCallback Called when it's a file.
+ * @param {Function} dirCallback Called when it's a directory.
+ */
+const separateFilesDirs = function (filesDirs, fileCallback, dirCallback) {
+  filesDirs = filesDirs ? filesDirs : [];
+  filesDirs = Array.isArray(filesDirs) ? filesDirs : [filesDirs];
+  filesDirs = uniq(filesDirs);
+
+  filesDirs.forEach(fileDir => {
+    const fileDir_ = path.resolve(fileDir);
+    // `fs.statSync` throw error if not found.
+    const stat = fs.statSync(fileDir_);
+    if (stat.isFile()) {
+      fileCallback(fileDir_);
+    } else if (stat.isDirectory()) {
+      dirCallback(fileDir_);
+    } else {
+      throw new Error(`Not a file or directory \"${fileDir}\"!!`);
+    }
+  });
+}
+
 module.exports = {
   walkCurrent: walkCurrent,
   walkCurrentSync: walkCurrentSync,
