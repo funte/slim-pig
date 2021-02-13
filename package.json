@@ -1,6 +1,6 @@
 {
   "name": "slim-pig",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "苗条猪",
   "main": "src/index.js",
   "scripts": {
