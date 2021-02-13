@@ -178,4 +178,8 @@ describe('fs', function () {
       })
     });
   });
+
+  describe('#separateFilesDirs', () => {
+    // TODO: test separateFilesDirs.
+  });
 });

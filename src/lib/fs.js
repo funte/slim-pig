@@ -146,5 +146,6 @@ module.exports = {
   walk: walk,
   walkSync: walkSync,
   walkSyncEx: walkSyncEx,
-  isSubDirectory: isSubDirectory
+  isSubDirectory: isSubDirectory,
+  separateFilesDirs: separateFilesDirs
 };
