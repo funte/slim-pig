@@ -167,7 +167,9 @@ describe('fs', function () {
         ['d:/down', 'd:/down', false],
         ['/d/down', '/d/down', false],
         ['d:/down/up/../../down', 'd:/', true],
-        ['/d/down/up/../../down', '/d', true]
+        ['/d/down/up/../../down', '/d', true],
+        ['d:/down', 'd:/down', false],
+        ['/d/down', '/d/down', false]
       ];
       args.forEach(values => {
         assert.equal(
