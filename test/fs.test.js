@@ -182,6 +182,22 @@ describe('fs', function () {
   });
 
   describe('#separateFilesDirs', () => {
-    // TODO: test separateFilesDirs.
+    var filesDirs = [];
+    pig.fs.walkSync(
+      path.resolve(__dirname, `./.fs.test`),
+      file => { filesDirs.push(file); },
+      dir => { filesDirs.push(dir); }
+    );
+    assert.equal(filesDirs.length, 3);
+
+    var files = [];
+    var dirs = [];
+    pig.fs.separateFilesDirs(
+      filesDirs,
+      file => { files.push(file); },
+      dir => { dirs.push(dir); }
+    );
+    assert.equal(files.length, 2);
+    assert.equal(dirs.length, 1);
   });
 });
