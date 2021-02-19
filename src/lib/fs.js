@@ -74,32 +74,24 @@ const walkSync = (dir, fileCallback = null, directoryCallback = null) => {
 }
 
 const walkSyncEx = function (dir, fileCallback = null, directoryCallback = null) {
-  const files = fs.readdirSync(dir);
+  const filesDirs = fs.readdirSync(dir);
 
-  for (let file of files) {
-    file = path.resolve(dir, file);
-    const stat = fs.statSync(file);
-    let op = {
-      done: false,
-      skip: false
-    };
+  for (let fileDir of filesDirs) {
+    fileDir = path.resolve(dir, fileDir);
+    const stat = fs.statSync(fileDir);
+    let op = { done: false, skip: false };
     if (stat.isDirectory()) {
-      if (directoryCallback) {
-        op = directoryCallback(file);
-      }
-      if (op && op.done) {
+      if (directoryCallback)
+        Object.assign(op, directoryCallback(fileDir));
+      if (op.done)
         return;
-      }
-      if (!op || !op.skip) {
-        walkSync(file, fileCallback, directoryCallback);
-      }
+      if (!op.skip)
+        walkSyncEx(fileDir, fileCallback, directoryCallback);
     } else if (stat.isFile()) {
-      if (fileCallback) {
-        op = fileCallback(file);
-      }
-      if (op && op.done) {
+      if (fileCallback)
+        Object.assign(op, fileCallback(fileDir));
+      if (op.done)
         return;
-      }
     }
   }
 }
