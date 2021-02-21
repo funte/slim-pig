@@ -104,7 +104,6 @@ export function walkSyncEx(dir: string, fileCallback?: FileCallbackEx, dirCallba
   for (let fileDir of fs.readdirSync(dir)) {
     fileDir = path.resolve(dir, fileDir);
     const stat = fs.statSync(fileDir);
-    // const op = new Op();
     const op = { done: false, skip: false };
     if (stat.isDirectory()) {
       if (dirCallback)
