@@ -109,12 +109,10 @@ describe('fs', function () {
         file => {
           filesFound.push(file);
           // Stop when find file "a".
-          if (path.basename(file) === 'a') {
-            return new fs.Op(new Map([['done', true]]));
-          }
+          if (path.basename(file) === 'a')
+            return { done: true };
         }
       );
-
       assert.equal(filesFound.length, 1);
     });
 
@@ -129,10 +127,9 @@ describe('fs', function () {
           const tokens = dir.split('/');
           // Stop when found directory "sub".
           if (tokens[tokens.length - 1] === 'sub')
-            return new fs.Op(new Map([['done', true]]));
+            return { done: true };
         }
       );
-
       assert.equal(filesFound.length, 1);
     });
 
@@ -146,12 +143,10 @@ describe('fs', function () {
           dir = str.unixlike(dir);
           const tokens = dir.split('/');
           // Skip when found directory "sub".
-          if (tokens[tokens.length - 1] === 'sub') {
-            return new fs.Op(new Map([['skip', true]]));
-          }
+          if (tokens[tokens.length - 1] === 'sub')
+            return { skip: true };
         }
       );
-
       assert.equal(filesFound.length, 1);
     });
   });

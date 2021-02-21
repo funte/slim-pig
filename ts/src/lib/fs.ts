@@ -91,40 +91,21 @@ export function walkSync(dir: string, fileCallback?: FileCallback, dirCallback?:
   });
 }
 
-export class Op {
-  /**
-   * @param {boolean} op.done Done flag.
-   * @param {boolean} op.skip Skip flag.
-   */
-  constructor(op?: Map<string, boolean>) {
-    if (op && op.has('done'))
-      this.done = Boolean(op.get('done'));
-    else
-      this.done = false;
-    if (op && op.has('skip'))
-      this.skip = Boolean(op.get('skip'));
-    else
-      this.skip = false;
-  }
-  done: boolean;
-  skip: boolean;
-}
-type FileCallbackEx = (file: string) => Op | void;
-type DirectoryCallbackEx = (file: string) => Op | void;
+type FileCallbackEx = (file: string) => { done: boolean } | void;
+type DirectoryCallbackEx = (file: string) => { done: boolean, skip: boolean } | { done: boolean } | { skip: boolean } | void;
 
 /**
  * 同步遍历目录.
- * 对于文件回调函数 "fileCallback", 如果返回 "Op" 对象 "done" 属性为 true 则停止遍历;
- * 对于目录回调函数 "directoryCallback", 如果返回 "Op" 对象 "done" 属性为 true 停止遍历,
- * 如果返回 "Op" 对象 "skip" 属性为 true 则跳过当前目录.  
+ * 对于文件回调函数 "fileCallback", 如果返回对象 "done" 属性为 true 则停止遍历;
+ * 对于目录回调函数 "dirCallback", 如果返回对象 "done" 属性为 true 停止遍历,
+ * 如果返回对象 "skip" 属性为 true 则跳过当前目录.  
  */
 export function walkSyncEx(dir: string, fileCallback?: FileCallbackEx, dirCallback?: DirectoryCallbackEx): void {
-  const filesDirs = fs.readdirSync(dir);
-
-  for (let fileDir of filesDirs) {
+  for (let fileDir of fs.readdirSync(dir)) {
     fileDir = path.resolve(dir, fileDir);
     const stat = fs.statSync(fileDir);
-    const op = new Op();
+    // const op = new Op();
+    const op = { done: false, skip: false };
     if (stat.isDirectory()) {
       if (dirCallback)
         Object.assign(op, dirCallback(fileDir));
