@@ -1,11 +1,11 @@
-const pig = require('../src/index.js');
-const { assert, expect } = require('chai');
+import { assert } from 'chai';
+import * as str from '../src/lib/str';
 
 describe('str', function () {
   describe('#unixlike()', function () {
     it('将路径字符串中的 `\\` 转换为 `/`', function () {
       assert.equal(
-        pig.str.unixlike('..\\..\\src\\index.js'),
+        str.unixlike('..\\..\\src\\index.js'),
         '../../src/index.js'
       );
     });

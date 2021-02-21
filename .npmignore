@@ -1,2 +1,4 @@
-test
 .npmrc
+.eslintignore
+.eslintrc
+tsconfig.json

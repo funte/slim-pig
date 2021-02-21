@@ -2,26 +2,35 @@
   "name": "slim-pig",
   "version": "1.0.10",
   "description": "苗条猪",
-  "main": "src/index.js",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
-    "test": "npm run eslint && npm run mocha",
-    "eslint": "eslint .",
-    "mocha": "mocha --recursive"
+    "build": "tsc",
+    "clean": "rimraf ./dist",
+    "test": "npm run test:lint && npm run test:unit",
+    "test:lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test:unit": "mocha --recursive -r ts-node/register 'ts/test/**/*.test.ts'"
   },
   "author": "高国文 (funte@outlook.com)",
   "homepage": "https://github.com/funte/slim-pig",
   "repository": "https://github.com/funte/slim-pig",
   "license": "MIT",
   "dependencies": {
-    "fs": "0.0.1-security",
-    "lodash.uniq": "^4.5.0",
-    "path": "^0.12.7"
+    "@types/fs-extra": "^9.0.7",
+    "@types/node": "^14.14.31"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.15.1",
+    "@typescript-eslint/parser": "^4.15.1",
     "chai": "^4.3.0",
-    "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^6.8.0",
-    "mocha": "^7.1.1"
+    "commitizen": "^4.2.3",
+    "eslint": "^7.20.0",
+    "mocha": "^8.3.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5"
   },
   "config": {
     "commitizen": {

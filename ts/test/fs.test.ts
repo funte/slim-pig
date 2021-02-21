@@ -1,29 +1,29 @@
-const pig = require('../src/index.js');
-const { assert, expect } = require('chai');
-var path = require('path');
+import { assert } from 'chai';
+import * as path from 'path';
+import * as fs from '../src/lib/fs';
+import * as str from '../src/lib/str';
 
 describe('fs', function () {
-
   describe('#walkCurrent()', () => {
     it('异步遍历当前目录', done => {
-      var files = ['a'];
-      var directories = ['sub'];
-      pig.fs.walkCurrent(path.resolve('test/.fs.test'),
+      const files: Array<string> = ['a'];
+      const dirs: Array<string> = ['sub'];
+      fs.walkCurrent(path.resolve(__dirname, './.fs.test'),
         filePath => {
-          const basename = path.basename(filePath);
-          const index = files.indexOf(basename);
+          const basename: string = path.basename(filePath);
+          const index: number = files.indexOf(basename);
           assert.notEqual(index, -1);
           files.splice(index, 1);
-          if (files.length == 0 && directories.length == 0) {
+          if (files.length == 0 && dirs.length == 0) {
             done();
           }
         },
         directoryPath => {
-          const basename = path.basename(directoryPath);
-          const index = directories.indexOf(basename);
+          const basename: string = path.basename(directoryPath);
+          const index: number = dirs.indexOf(basename);
           assert.notEqual(index, -1);
-          directories.splice(index, 1);
-          if (files.length == 0 && directories.length == 0) {
+          dirs.splice(index, 1);
+          if (files.length == 0 && dirs.length == 0) {
             done();
           }
         }
@@ -33,9 +33,9 @@ describe('fs', function () {
 
   describe('#walkCurrentSync()', () => {
     it('同步遍历当前目录', () => {
-      var files = ['a'];
-      var directories = ['sub'];
-      pig.fs.walkCurrentSync(path.resolve('test/.fs.test'),
+      const files: Array<string> = ['a'];
+      const dirs: Array<string> = ['sub'];
+      fs.walkCurrentSync(path.resolve(__dirname, './.fs.test'),
         filePath => {
           const basename = path.basename(filePath);
           const index = files.indexOf(basename);
@@ -44,35 +44,35 @@ describe('fs', function () {
         },
         directoryPath => {
           const basename = path.basename(directoryPath);
-          const index = directories.indexOf(basename);
+          const index = dirs.indexOf(basename);
           assert.notEqual(index, -1);
-          directories.splice(index, 1);
+          dirs.splice(index, 1);
         });
       assert.equal(files.length, 0);
-      assert.equal(directories.length, 0);
+      assert.equal(dirs.length, 0);
     });
   });
 
   describe('#walk()', () => {
     it('异步历目录', done => {
-      var files = ['a', 'b'];
-      var directories = ['sub'];
-      pig.fs.walk(path.resolve('test/.fs.test'),
+      const files: Array<string> = ['a', 'b'];
+      const dirs: Array<string> = ['sub'];
+      fs.walk(path.resolve(__dirname, './.fs.test'),
         filePath => {
           const basename = path.basename(filePath);
           const index = files.indexOf(basename);
           assert.notEqual(index, -1);
           files.splice(index, 1);
-          if (files.length == 0 && directories.length == 0) {
+          if (files.length == 0 && dirs.length == 0) {
             done();
           }
         },
         directoryPath => {
           const basename = path.basename(directoryPath);
-          const index = directories.indexOf(basename);
+          const index = dirs.indexOf(basename);
           assert.notEqual(index, -1);
-          directories.splice(index, 1);
-          if (files.length == 0 && directories.length == 0) {
+          dirs.splice(index, 1);
+          if (files.length == 0 && dirs.length == 0) {
             done();
           }
         }
@@ -82,9 +82,9 @@ describe('fs', function () {
 
   describe('#walkSync()', () => {
     it('同步遍历目录', () => {
-      var files = ['a', 'b'];
-      var directories = ['sub'];
-      pig.fs.walkSync(path.resolve('test/.fs.test'),
+      const files: Array<string> = ['a', 'b'];
+      const dirs: Array<string> = ['sub'];
+      fs.walkSync(path.resolve(__dirname, './.fs.test'),
         filePath => {
           const index = files.indexOf(path.basename(filePath));
           assert.notEqual(index, -1);
@@ -92,25 +92,25 @@ describe('fs', function () {
         },
         directoryPath => {
           const basename = path.basename(directoryPath);
-          const index = directories.indexOf(basename);
+          const index = dirs.indexOf(basename);
           assert.notEqual(index, -1);
-          directories.splice(index, 1);
+          dirs.splice(index, 1);
         }
       );
       assert.equal(files.length, 0);
-      assert.equal(directories.length, 0);
+      assert.equal(dirs.length, 0);
     });
   });
 
   describe('#walkSyncEx', () => {
     it('同步遍历目录, 文件回调函数 测试 done operation', () => {
-      let filesFound = [];
-      pig.fs.walkSyncEx(path.resolve('test/.fs.test'),
+      const filesFound: Array<string> = [];
+      fs.walkSyncEx(path.resolve(__dirname, './.fs.test'),
         file => {
           filesFound.push(file);
-          // Stop when file `a`.
+          // Stop when find file "a".
           if (path.basename(file) === 'a') {
-            return { done: true };
+            return new fs.Op(new Map([['done', true]]));
           }
         }
       );
@@ -119,18 +119,17 @@ describe('fs', function () {
     });
 
     it('同步遍历目录, 目录回调函数 测试 done operation', () => {
-      let filesFound = [];
-      pig.fs.walkSyncEx(path.resolve('test/.fs.test'),
+      const filesFound: Array<string> = [];
+      fs.walkSyncEx(path.resolve(__dirname, './.fs.test'),
         file => {
           filesFound.push(file);
         },
         dir => {
-          dir = pig.str.unixlike(dir);
+          dir = str.unixlike(dir);
           const tokens = dir.split('/');
-          // Stop when directory `sub`.
-          if (tokens[tokens.length - 1] === 'sub') {
-            return { done: true };
-          }
+          // Stop when found directory "sub".
+          if (tokens[tokens.length - 1] === 'sub')
+            return new fs.Op(new Map([['done', true]]));
         }
       );
 
@@ -138,17 +137,17 @@ describe('fs', function () {
     });
 
     it('同步遍历目录, 目录回调函数 测试 skip operation', () => {
-      let filesFound = [];
-      pig.fs.walkSyncEx(path.resolve('test/.fs.test'),
+      const filesFound: Array<string> = [];
+      fs.walkSyncEx(path.resolve(__dirname, './.fs.test'),
         file => {
           filesFound.push(file);
         },
         dir => {
-          dir = pig.str.unixlike(dir);
+          dir = str.unixlike(dir);
           const tokens = dir.split('/');
-          // Skip when directory `sub`.
+          // Skip when found directory "sub".
           if (tokens[tokens.length - 1] === 'sub') {
-            return { skip: true };
+            return new fs.Op(new Map([['skip', true]]));
           }
         }
       );
@@ -159,40 +158,38 @@ describe('fs', function () {
 
   describe('#isSubDirectory', () => {
     it('test', () => {
-      const args = [
-        ['d:/down', 'd:/', true],
-        ['/d/down', '/d', true],
-        ['d:/', 'd:/down', false],
-        ['/d', '/d/down', false],
-        ['d:/down', 'd:/down', false],
-        ['/d/down', '/d/down', false],
-        ['d:/down/up/../../down', 'd:/', true],
-        ['/d/down/up/../../down', '/d', true],
-        ['d:/down', 'd:/down', false],
-        ['/d/down', '/d/down', false]
-      ];
-      args.forEach(values => {
-        assert.equal(
-          pig.fs.isSubDirectory(values[0], values[1]),
-          values[2],
-          `\"${values[0]}\" ${values[2] ? 'is' : 'not'} sub directory of \"${values[1]}\"`
+      const args: Map<Array<string>, boolean> = new Map([
+        [['d:/down', 'd:/'], true],
+        [['/d/down', '/d'], true],
+        [['d:/', 'd:/down'], false],
+        [['/d', '/d/down'], false],
+        [['d:/down', 'd:/down'], false],
+        [['/d/down', '/d/down'], false],
+        [['d:/down/up/../../down', 'd:/'], true],
+        [['/d/down/up/../../down', '/d'], true],
+        [['d:/down', 'd:/down'], false],
+        [['/d/down', '/d/down'], false]
+      ]);
+      for (const arg of args.keys()) {
+        assert.equal(fs.isSubDirectory(arg[0], arg[1]), args.get(arg),
+          `Expect "${arg[0]}" ${args.get(arg) ? 'is' : 'not'} sub directory of "${arg[1]}"`
         );
-      })
+      }
     });
   });
 
   describe('#separateFilesDirs', () => {
-    var filesDirs = [];
-    pig.fs.walkSync(
+    const filesDirs: Array<string> = [];
+    fs.walkSync(
       path.resolve(__dirname, `./.fs.test`),
       file => { filesDirs.push(file); },
       dir => { filesDirs.push(dir); }
     );
     assert.equal(filesDirs.length, 3);
 
-    var files = [];
-    var dirs = [];
-    pig.fs.separateFilesDirs(
+    const files: Array<string> = [];
+    const dirs: Array<string> = [];
+    fs.separateFilesDirs(
       filesDirs,
       file => { files.push(file); },
       dir => { dirs.push(dir); }
