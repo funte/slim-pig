@@ -1,25 +1,80 @@
-## slim pig
+# slim pig
 苗条猪.
 
-## api
-- stirng  
+## Install
+`npm install slim-pig --sav-dev`
+
+## API
+- string  
   + unixlike  
-    将路径字符串中的 `\` 转换为 `/`  
+    Convert windows path separator `\` to `/`.  
+    ```js
+    const pig = require('slim-pig');
+    const str = `D:\\syc\\project\\nodejs\\hellos\\main.js`
+    const out = pig.str.unixlike(str);
+    console.log(out); // D:/syc/project/nodejs/hellos/main.js
+      ```
 - file system  
-  + walkCurrent  
-    异步遍历当前目录  
-  + walkCurrentSync  
-    同步遍历当前目录  
   + walk  
-    异步遍历目录  
+    Async walk throurgh a directory.  
+    ```js
+    (async function () {
+      const pig = require('slim-pig');
+      const files = [];
+      await pig.fs.walk(
+        '.',
+        file => files.push(file)
+      );
+      console.log(files);
+    })();
+    ```
   + walkSync  
-    同步遍历目录  
-  + walkSyncEx  
-    同步遍历目录.  
-    对于文件回调函数 `fileCallback`, 如果返回对象 `done` 属性为 `true` 则停止遍历;  
-    对于目录回调函数 `dirCallback`, 如果返回对象 `done` 属性为 `true` 停止遍历, 如果返回对象 `skip` 属性为 `true` 则跳过当前目录;  
-    如果 `fileCallback` 和 `dirCallback` 都不返回任何数据, 则与 `walkSync` 相同.  
+    Sync walk throurgh a directory.  
+    ```js
+    const pig = require('slim-pig');
+    const files = [];
+    pig.fs.walkSync(
+      '.',
+      file => files.push(file)
+    );
+    console.log(files);
+    ```
   + isSubDirectory  
-    Is a sub directory. See https://stackoverflow.com/a/45242825/5906199.  
-  + separateFilesDirs  
-    Seprate the directories and files path.  
+     Whether child is a sub directory of parent.  
+  + separateFilesDirs   
+    Async seprate the directories and files, the directory or file must be exist.  
+  + separateFilesDirsSync  
+    Sync seprate the directories and files, the directory or file must be exist.  
+- function
+  + isAsyncFunction  
+    Is async function.  
+    ```js
+    const pig = require('slim-pig');
+    // AsyncGeneratorFunction and closure.
+    async function* asyncGeneratorFunction() { yield; }
+    console.log(pig.func.isAsyncFunction(asyncGeneratorFunction)); // true
+    console.log(pig.func.isAsyncFunction(async function* () { yield; }));
+    // AsyncFunction and closure.
+    async function asyncFunction() { return; }
+    console.log(pig.func.isAsyncFunction(asyncFunction)); // true
+    console.log(pig.func.isAsyncFunction(async function () { return; })); // true
+    // Function and closure.
+    function syncFunction() { return; }
+    console.log(pig.func.isAsyncFunction(syncFunction)); // false
+    console.log(pig.func.isAsyncFunction(() => { return; })); // false
+    ```
+  + runcost  
+    Run function and get cost time.  
+    ```js
+    const pig = require('slim-pig');
+    async function delay(time) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(time);
+        }, time);
+      });
+    }
+    pig.func.runcost(delay, 1000).then(cost => {
+      console.log('cose time: ', cost);
+    });
+    ```

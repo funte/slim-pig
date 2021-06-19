@@ -1,0 +1,34 @@
+// {
+//   "compilerOptions": {
+//     "rootDir": "ts",
+//     "outDir": "dist",
+//     "target": "es6",
+//     "lib": [
+//       "es2019"
+//     ],
+//     "module": "commonjs",
+//     "esModuleInterop": true,
+//     "strict": true,
+//     "declaration": true,
+//     "sourceMap": true
+//   }
+// }
+
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "es6",
+    "lib": [
+      "es2019"
+    ],
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "declaration": true,
+  },
+  "include": ["src/**/*"],
+  // "exclude": ["node_modules"]
+}
