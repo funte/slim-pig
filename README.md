@@ -5,7 +5,7 @@
 `npm install slim-pig --save-dev`
 
 ## API
-- string  
+* string  
   + unixlike  
     Convert windows path separator `\` to `/`.  
     ```js
@@ -13,8 +13,16 @@
     const str = `D:\\syc\\project\\nodejs\\hellos\\main.js`
     const out = pig.str.unixlike(str);
     console.log(out); // D:/syc/project/nodejs/hellos/main.js
-      ```
-- file system  
+    ```
+  * StringFormatter
+    A simple string formatter.  
+    See https://stackoverflow.com/a/4673436/5906199.  
+    ```js
+    const pig = require('slim-pig');
+    const out = pig.str.StringFormatter.format('{0}比{1}聪明', ['猪', '人']);
+    console.log(out); // '猪比人聪明'
+    ```
+* file system  
   + walk  
     Async walk throurgh a directory.  
     ```js
@@ -45,7 +53,7 @@
     Async seprate the directories and files, the directory or file must be exist.  
   + separateFilesDirsSync  
     Sync seprate the directories and files, the directory or file must be exist.  
-- function
+* function
   + isAsyncFunction  
     Is async function.  
     ```js

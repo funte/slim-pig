@@ -1,6 +1,6 @@
 {
   "name": "slim-pig",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "苗条猪",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,7 @@
     "test": "npm run test:lint && npm run test:unit",
     "test:lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test:unit": "mocha --recursive -r ts-node/register 'test/**/*.test.ts'",
-    "test:one": "mocha -r ts-node/register 'test/fs.test.ts'"
+    "test:one": "mocha -r ts-node/register 'test/str.test.ts'"
   },
   "author": "高国文 (funte@outlook.com)",
   "homepage": "https://github.com/funte/slim-pig",
