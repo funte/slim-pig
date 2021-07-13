@@ -14,13 +14,14 @@
     const out = pig.str.unixlike(str);
     console.log(out); // D:/syc/project/nodejs/hellos/main.js
     ```
-  * StringFormatter
-    A simple string formatter.  
-    See https://stackoverflow.com/a/4673436/5906199.  
+  * StringFormatter  
+    A simple string formatter that using tagged template.  
+    See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates.  
     ```js
     const pig = require('slim-pig');
-    const out = pig.str.StringFormatter.format('{0}比{1}聪明', ['猪', '人']);
-    console.log(out); // '猪比人聪明'
+    const formatter = new pig.str.StringFormatter().setTemplate`${0} ${'foo'}!`;
+    const out = formatter.format('Hello', { foo: 'World' });
+    console.log(out); // Hello World!
     ```
 * file system  
   + walk  

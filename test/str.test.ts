@@ -12,17 +12,9 @@ describe('str', function () {
   });
 
   describe('#StringFormatter', function () {
-    const form = '{0}比{1}聪明';
-    const args = ['猪', '人'];
-    const result = '猪比人聪明';
-
-    it('test static format method', function () {
-      expect(str.StringFormatter.format(form, args)).to.equal(result);
-    });
-
     it('test format method', function () {
-      const formatter = new str.StringFormatter(form);
-      expect(formatter.format(args)).to.equal(result);
+      const formatter = new str.StringFormatter().setTemplate`${0} ${'foo'}!`;
+      expect(formatter.format('Hello', { foo: 'World' })).to.equal('Hello World!');
     });
   });
 });
