@@ -2,7 +2,7 @@
 苗条猪.
 
 ## Install
-`npm install slim-pig --save-dev`
+`npm install slim-pig`
 
 ## API
 * string  
