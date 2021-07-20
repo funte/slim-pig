@@ -84,6 +84,6 @@
       });
     }
     pig.func.runcost(delay, 1000).then(cost => {
-      console.log('cose time: ', cost);
+      console.log('cost time: ', cost);
     });
     ```
