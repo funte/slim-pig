@@ -3,7 +3,6 @@ import * as chai from 'chai';
 const expect = chai.expect;
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
-import * as path from 'path';
 
 import * as func from '../src/lib/func';
 

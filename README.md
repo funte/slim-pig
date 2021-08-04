@@ -24,6 +24,13 @@
     console.log(out); // Hello World!
     ```
 * file system  
+  + FSOptions object  
+    - FSOptions.FSFileSystem  
+      User provided file system, like the `memfs`, defaults to `fs-extra`.  
+    - FSOptions.useNewAPI  
+      Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.  
+    - FSOptions.bufferSize  
+      `fs.opendir/opendirSync` bufferSize option, defaults to 32.
   + walk  
     Async walk throurgh a directory.  
     ```js

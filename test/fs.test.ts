@@ -15,9 +15,9 @@ describe('fs', function () {
         const files: string[] = [];
         await fs.walk(path.resolve(__dirname, './fixtures'),
           // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           file => { return 'done'; },
-          undefined,
-          true
+          undefined
         );
         expect(files.length).to.equal(0);
       });
@@ -27,8 +27,8 @@ describe('fs', function () {
         fs.walkSync(path.resolve(__dirname, './fixtures'),
           file => { files.push(file); },
           // Stop when occurs any directory.
-          dir => { return 'done'; },
-          true
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          dir => { return 'done'; }
         );
         expect(files.length).to.equal(1);
       });
@@ -43,8 +43,7 @@ describe('fs', function () {
             // Skip sub directory "sub".
             if (tokens[tokens.length - 1] === 'sub')
               return 'skip';
-          },
-          true
+          }
         );
         expect(files.length).to.equal(1);
       });
@@ -54,9 +53,10 @@ describe('fs', function () {
         const files: string[] = [];
         await fs.walk(path.resolve(__dirname, './fixtures'),
           // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           file => { return 'done'; },
           undefined,
-          false
+          { useNewAPI: false }
         );
         expect(files.length).to.equal(0);
       });
@@ -66,8 +66,9 @@ describe('fs', function () {
         fs.walkSync(path.resolve(__dirname, './fixtures'),
           file => { files.push(file); },
           // Stop when occurs any directory.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           dir => { return 'done'; },
-          false
+          { useNewAPI: false }
         );
         expect(files.length).to.equal(1);
       });
@@ -83,7 +84,7 @@ describe('fs', function () {
             if (tokens[tokens.length - 1] === 'sub')
               return 'skip';
           },
-          false
+          { useNewAPI: false }
         );
         expect(files.length).to.equal(1);
       });
@@ -96,9 +97,9 @@ describe('fs', function () {
         const files: string[] = [];
         fs.walkSync(path.resolve(__dirname, './fixtures'),
           // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           file => { return 'done'; },
-          undefined,
-          true
+          undefined
         );
         expect(files.length).to.equal(0);
       });
@@ -108,8 +109,8 @@ describe('fs', function () {
         fs.walkSync(path.resolve(__dirname, './fixtures'),
           file => { files.push(file); },
           // Stop when occurs any directory.
-          dir => { return 'done'; },
-          true
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          dir => { return 'done'; }
         );
         expect(files.length).to.equal(1);
       });
@@ -124,8 +125,7 @@ describe('fs', function () {
             // Skip sub directory "sub".
             if (tokens[tokens.length - 1] === 'sub')
               return 'skip';
-          },
-          true
+          }
         );
         expect(files.length).to.equal(1);
       });
@@ -136,9 +136,10 @@ describe('fs', function () {
         const files: string[] = [];
         fs.walkSync(path.resolve(__dirname, './fixtures'),
           // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           file => { return 'done'; },
           undefined,
-          false
+          { useNewAPI: false }
         );
         expect(files.length).to.equal(0);
       });
@@ -148,8 +149,9 @@ describe('fs', function () {
         fs.walkSync(path.resolve(__dirname, './fixtures'),
           file => { files.push(file); },
           // Stop when occurs any directory.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           dir => { return 'done'; },
-          false
+          { useNewAPI: false }
         );
         expect(files.length).to.equal(1);
       });
@@ -165,7 +167,7 @@ describe('fs', function () {
             if (tokens[tokens.length - 1] === 'sub')
               return 'skip';
           },
-          false
+          { useNewAPI: false }
         );
         expect(files.length).to.equal(1);
       });
@@ -192,40 +194,45 @@ describe('fs', function () {
     }
   });
 
-  // it('#separateFilesDirs', async () => {
-  //   const filesdirs: string[] = [];
-  //   fs.walkSync(
-  //     path.resolve(__dirname, `./fixtures`),
-  //     file => { filesdirs.push(file); },
-  //     dir => { filesdirs.push(dir); }
-  //   );
-  //   expect(filesdirs.length).to.equal(3);
+  it('#separateFilesDirs', async () => {
+    const filesdirs: string[] = [];
+    const files: string[] = [];
+    const dirs: string[] = [];
 
-  //   expect(
-  //     fs.separateFilesDirs(filesdirs).then(res => {
-  //       expect(res.files.length).to.equal(2);
-  //       expect(res.dirs.length).to.equal(1);
-  //     })
-  //   ).to.not.rejectedWith(Error);
-  // });
+    fs.walkSync(
+      path.resolve(__dirname, 'fixtures'),
+      file => { filesdirs.push(file); },
+      dir => { filesdirs.push(dir); }
+    );
+    expect(filesdirs.length).to.equal(3);
 
-  // it('#separateFilesDirsSync', () => {
-  //   const filesdirs: string[] = [];
-  //   fs.walkSync(
-  //     path.resolve(__dirname, `./fixtures`),
-  //     file => { filesdirs.push(file); },
-  //     dir => { filesdirs.push(dir); }
-  //   );
-  //   expect(filesdirs.length).to.equal(3);
+    await fs.separateFilesDirs(
+      filesdirs,
+      file => { files.push(file); },
+      dir => { dirs.push(dir); }
+    );
+    expect(files.length).to.equal(2);
+    expect(dirs.length).to.equal(1);
+  });
 
-  //   const files: string[] = [];
-  //   const dirs: string[] = [];
-  //   fs.separateFilesDirsSync(
-  //     filesdirs,
-  //     file => { files.push(file); },
-  //     dir => { dirs.push(dir); }
-  //   );
-  //   expect(files.length).to.equal(2);
-  //   expect(dirs.length).to.equal(1);
-  // });
+  it('#separateFilesDirsSync', () => {
+    const filesdirs: string[] = [];
+    const files: string[] = [];
+    const dirs: string[] = [];
+
+    fs.walkSync(
+      path.resolve(__dirname, `./fixtures`),
+      file => { filesdirs.push(file); },
+      dir => { filesdirs.push(dir); }
+    );
+    expect(filesdirs.length).to.equal(3);
+
+    fs.separateFilesDirsSync(
+      filesdirs,
+      file => { files.push(file); },
+      dir => { dirs.push(dir); }
+    );
+    expect(files.length).to.equal(2);
+    expect(dirs.length).to.equal(1);
+  });
 });

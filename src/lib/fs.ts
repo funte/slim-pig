@@ -1,10 +1,28 @@
-import * as fs from 'fs-extra';
+import * as _fs from 'fs-extra';
 import * as path from 'path';
 
 export type FileCallback = (file: string) => string | void;
 export type DirectoryCallback = (dir: string) => string | void;
 
+export interface FSFileSystem {
+  opendir: typeof _fs.opendir;
+  opendirSync: typeof _fs.opendirSync;
+  readdir: typeof _fs.readdir;
+  readdirSync: typeof _fs.readdirSync;
+  statSync: typeof _fs.statSync;
+  lstatSync: typeof _fs.lstatSync;
+  readlinkSync: typeof _fs.readlinkSync;
+}
 
+export interface FSOptions {
+  /** User provided file system, like the memfs, defaults to fs-extra. */
+  fs?: FSFileSystem;
+  /** Whether use new filesytem API fs.opendir/opendirSync, it's little slow 
+   * than fs.readdir/readdirSync, defaults to true. */
+  useNewAPI?: boolean;
+  /** fs.opendir/opendirSync bufferSize option, defaults to 32. */
+  bufferSize?: number;
+}
 
 /**
  * Async walk throurgh a directory.  
@@ -13,20 +31,23 @@ export type DirectoryCallback = (dir: string) => string | void;
  * @param {string} dir Directory to search.
  * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
  * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip current directory.
- * @param {boolean} [useNewAPI=true] Whether use fs.opendir, its slower than fs.readdir, defaults to true.
+ * @param {FSOptions} [options]
  * @return {Promise<void>}
  */
 export async function walk(
   dir: string,
   fileCallback: FileCallback = (): void => { return; },
   dirCallback: DirectoryCallback = (): void => { return; },
-  useNewAPI = true
+  options: FSOptions = { useNewAPI: true }
 ): Promise<void> {
+  const fs = (options && options.fs) ? options.fs : _fs;
+  const useNewAPI = (options && options.useNewAPI === false) ? false : true;
+  const buffersize = (options && options.bufferSize) ? options.bufferSize : 32;
   dir = path.resolve(dir);
 
   const innerWalk = (typeof fs.opendir === 'function' && useNewAPI) ?
     async function* (subdir: string): AsyncGenerator<void, void, void> {
-      for await (const dirent of await fs.opendir(subdir)) {
+      for await (const dirent of await fs.opendir(subdir, { bufferSize: buffersize })) {
         let direntPath = path.join(subdir, dirent.name);
         if (dirent.isDirectory()) {
           const lstat = fs.lstatSync(direntPath);
@@ -124,20 +145,23 @@ export async function walk(
  * @param {string} dir Directory to search.
  * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
  * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip current directory.
- * @param {boolean} [useNewAPI=true] Whether use fs.opendirSync, its slower than fs.readdirSync, defaults to true.
+ * @param {FSOptions} [options]
  * @return {void}
  */
 export function walkSync(
   dir: string,
   fileCallback: FileCallback = (): void => { return; },
   dirCallback: DirectoryCallback = (): void => { return; },
-  useNewAPI = true
+  options: FSOptions = { useNewAPI: true }
 ): void {
+  const fs = (options && options.fs) ? options.fs : _fs;
+  const useNewAPI = (options && options.useNewAPI === false) ? false : true;
+  const buffersize = (options && options.bufferSize) ? options.bufferSize : 32;
   dir = path.resolve(dir);
 
   const innerWalk = (typeof fs.opendirSync === 'function' && useNewAPI) ?
     (subdir: string): void => {
-      const opendir = fs.opendirSync(subdir);
+      const opendir = fs.opendirSync(subdir, { bufferSize: buffersize });
       let dirent;
       while ((dirent = opendir.readSync())) {
         let direntPath = path.join(opendir.path, dirent.name);
@@ -222,13 +246,17 @@ export function isSubDirectory(child: string, parent: string): boolean {
  * @param {string[]} filesdirs List of directories and files.
  * @param {Function} [fileCallback] Called when occurs file, stop if return "done".
  * @param {Function} [dirCallback] Called when occurs directory, stop if return "done".
+ * @param {FSOptions} options
  * @return {void}
  */
 export async function separateFilesDirs(
   filesdirs: string[],
   fileCallback: FileCallback = (): void => { return; },
   dirCallback: DirectoryCallback = (): void => { return; },
+  options: FSOptions = {}
 ): Promise<void> {
+  const fs = (options && options.fs) ? options.fs : _fs;
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for await (const p of (async function* (): AsyncGenerator<void, void, void> {
     for (const filedir of filesdirs) {
@@ -259,13 +287,17 @@ export async function separateFilesDirs(
  * @param {string[]} filesdirs List of directories and files.
  * @param {Function} [fileCallback] Called when occurs file, stop if return "done".
  * @param {Function} [dirCallback] Called when occurs directory, stop if return "done".
+ * @param {FSOptions} options
  * @return {void}
  */
 export function separateFilesDirsSync(
   filesdirs: string[],
   fileCallback: FileCallback = (): void => { return; },
   dirCallback: DirectoryCallback = (): void => { return; },
+  options: FSOptions = {}
 ): void {
+  const fs = (options && options.fs) ? options.fs : _fs;
+
   for (const filedir of filesdirs) {
     const filedirAbs = path.resolve(filedir);
     // fs.statSync throw error if not found.
