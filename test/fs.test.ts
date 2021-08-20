@@ -189,8 +189,8 @@ describe('fs', function () {
       });
     });
 
-    describe('walk glob', () => {
-      it('walk glob', async () => {
+    describe('walk absolute glob', () => {
+      it('walk absolute glob', async () => {
         const files: string[] = [];
         await fs.walk(
           path.resolve(__dirname, './fixtures/**/a.js'),
@@ -200,10 +200,32 @@ describe('fs', function () {
         expect(path.basename(files[0])).to.equal('a.js');
       });
 
-      it('walk negative glob', async () => {
+      it('walk negative absolute glob', async () => {
         const files: string[] = [];
         await fs.walk(
           '!' + path.resolve(__dirname, './fixtures/**/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('b.js');
+      });
+    });
+
+    describe('walk relative glob', () => {
+      it('walk relative glob', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          './test/fixtures/**/a.js',
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('a.js');
+      });
+
+      it('walk negative relative glob', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          '!./test/fixtures/**/a.js',
           file => { files.push(file); }
         );
         expect(files.length).to.equal(1);
@@ -332,8 +354,8 @@ describe('fs', function () {
       });
     });
 
-    describe('walk glob', () => {
-      it('walk glob', async () => {
+    describe('walk absolute glob', () => {
+      it('walk absolute glob', async () => {
         const files: string[] = [];
         fs.walkSync(
           path.resolve(__dirname, './fixtures/**/a.js'),
@@ -343,10 +365,32 @@ describe('fs', function () {
         expect(path.basename(files[0])).to.equal('a.js');
       });
 
-      it('walk negative glob', async () => {
+      it('walk negative absolute glob', async () => {
         const files: string[] = [];
         fs.walkSync(
           '!' + path.resolve(__dirname, './fixtures/**/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('b.js');
+      });
+    });
+
+    describe('walk relative glob', () => {
+      it('walk relative glob', async () => {
+        const files: string[] = [];
+        fs.walkSync(
+          './test/fixtures/**/a.js',
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('a.js');
+      });
+
+      it('walk negative relative glob', async () => {
+        const files: string[] = [];
+        fs.walkSync(
+          '!./test/fixtures/**/a.js',
           file => { files.push(file); }
         );
         expect(files.length).to.equal(1);

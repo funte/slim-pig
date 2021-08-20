@@ -795,14 +795,6 @@ describe('pattern', function () {
 
   describe('resolvePattern', function () {
     it('invalid context throws', function () {
-      // Context is missing.
-      expect(function () {
-        resolvePattern('*.js')
-      }).to.throw('Context must be a string.');
-      expect(function () {
-        resolvePattern('a/b')
-      }).to.throw('Context must be a string.');
-
       // Context is glob.
       expect(function () {
         resolvePattern('*.js', '**')

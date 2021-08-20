@@ -71,7 +71,7 @@ export function globParent(
 
 /**
  * Extract glob part from the glob pattern.  
- * The returned directory has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
+ * The returned glob has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
  * @param {string} pattern
  * @returns {string}
  */
@@ -237,7 +237,7 @@ export function removeLeadingDot(pattern: string): string {
 /**
  * Resolve the pattern to absolute with POSIX path separator.
  * @param {string} pattern
- * @param {string} [context] An absolute directory used to resolve the relative `pattern` to absolute.  
+ * @param {string} [context] An absolute directory used to resolve the relative `pattern` to absolute, defaults to `process.cwd()`.  
  * If `pattern` is absolute, ignore this parameter.  
  * @returns {string}
  */
@@ -247,7 +247,8 @@ export function resolvePattern(
 ): string {
   const validateAndNormalizeContext = function () {
     if (typeof context !== 'string') {
-      throw new TypeError('Context must be a string.');
+      // throw new TypeError('Context must be a string.');
+      context = process.cwd();
     }
 
     // Normalize context.

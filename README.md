@@ -26,6 +26,7 @@
     Note: walk is async but the fileCallback and dirCallback should be sync.  
     If occurs an error, using `Promise.catch` handle it, e.g. `await walk(...).catch(err => { })`.  
     ```js
+    // Walk all file in CWD.
     (async function () {
       const pig = require('slim-pig');
       const files = [];
@@ -36,13 +37,36 @@
       console.log(files);
     })();
     ```
+    ```js
+    // Walk js file in CWD.
+    (async function () {
+      const pig = require('slim-pig');
+      const files = [];
+      await pig.fs.walk(
+        '**/*.js',
+        file => files.push(file)
+      );
+      console.log(files);
+    })();
+    ```
   + walkSync  
     Sync walk throurgh a pattern.  
     ```js
+    // Walk all file in CWD.
     const pig = require('slim-pig');
     const files = [];
     pig.fs.walkSync(
       '.',
+      file => files.push(file)
+    );
+    console.log(files);
+    ``` 
+    ```js
+    // Walk all js file in CWD.
+    const pig = require('slim-pig');
+    const files = [];
+    pig.fs.walkSync(
+      '**/*.js',
       file => files.push(file)
     );
     console.log(files);
@@ -94,7 +118,7 @@
     ```
   + globPart  
     Extract glob part from the glob pattern.  
-    The returned directory has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
+    The returned glob has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
     ```js
     const { globPart } = require('slim-pig').pattern;
     console.log(globPart('a/**')); // **

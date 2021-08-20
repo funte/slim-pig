@@ -9,6 +9,7 @@ import {
   globPart,
   isAbsolute,
   isGlob,
+  resolvePattern,
   unixlike
 } from './pattern';
 
@@ -223,7 +224,7 @@ export async function walk(
     throw new Error('Pattern must be a string.');
   }
   if (!isAbsolute(pattern)) {
-    throw new TypeError('Pattern must be absolute.');
+    pattern = resolvePattern(pattern);
   }
 
   // Normalize pattern.
@@ -348,7 +349,7 @@ export function walkSync(
     throw new Error('Pattern must be a string.');
   }
   if (!isAbsolute(pattern)) {
-    throw new TypeError('Pattern must be absolute.');
+    pattern = resolvePattern(pattern);
   }
 
   // Normalize pattern.
