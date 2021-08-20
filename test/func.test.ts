@@ -1,13 +1,10 @@
+import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import * as chai from 'chai';
-const expect = chai.expect;
-import chaiAsPromised from 'chai-as-promised';
-chai.use(chaiAsPromised);
 
 import * as func from '../src/lib/func';
 
 describe('func', () => {
-  it('#isAsync', () => {
+  it('isAsync', () => {
     // AsyncGeneratorFunction and closure.
     async function* asyncGeneratorFunction(): AsyncGenerator<void, void, void> { yield; }
     expect(func.isAsyncFunction(asyncGeneratorFunction)).to.true;

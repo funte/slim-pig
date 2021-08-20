@@ -1,6 +1,6 @@
 {
   "name": "slim-pig",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "苗条猪",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,26 +12,27 @@
     "watch": "rm -rf ./dist && tsc -w",
     "test": "npm run test:lint && npm run test:all",
     "test:lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test:all": "mocha --recursive -r ts-node/register 'test/**/*.test.ts'",
-    "test:one": "mocha -r ts-node/register 'test/fs.test.ts'"
+    "test:all": "mocha --recursive -require ts-node/register 'test/**/*.test.ts'",
+    "test:one": "mocha -require ts-node/register 'test/fs.test.ts'"
   },
   "author": "高国文 (funte@outlook.com)",
   "homepage": "https://github.com/funte/slim-pig",
   "repository": "https://github.com/funte/slim-pig",
   "license": "MIT",
   "dependencies": {
-    "fs-extra": "^9.1.0"
+    "fs-extra": "^9.1.0",
+    "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "@types/chai": "^4.2.15",
-    "@types/chai-as-promised": "^7.1.4",
     "@types/fs-extra": "^9.0.7",
+    "@types/glob-parent": "^5.1.1",
+    "@types/minimatch": "^3.0.5",
     "@types/mocha": "^8.2.1",
     "@types/node": "^14.14.31",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "chai": "^4.3.0",
-    "chai-as-promised": "^7.1.1",
     "commitizen": "^4.2.4",
     "eslint": "^7.20.0",
     "mocha": "^8.3.0",

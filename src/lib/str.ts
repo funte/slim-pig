@@ -1,14 +1,3 @@
-import * as path from 'path';
-
-/**
- * Convert windows path separator "\\" to "/".
- * @param {stirng} str file or directory path.
- * @return {string}
- */
-export function unixlike(str: string): string {
-  return path.normalize(str).split(path.sep).join(path.posix.sep);
-}
-
 /**
  * A simple string formatter that using tagged template.
  * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates. 

@@ -5,34 +5,26 @@
 `npm install slim-pig`
 
 ## API
-* string  
-  + unixlike  
-    Convert windows path separator `\` to `/`.  
-    ```js
-    const pig = require('slim-pig');
-    const str = `D:\\syc\\project\\nodejs\\hellos\\main.js`
-    const out = pig.str.unixlike(str);
-    console.log(out); // D:/syc/project/nodejs/hellos/main.js
-    ```
-  * StringFormatter  
-    A simple string formatter that using tagged template.  
-    See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates.  
-    ```js
-    const pig = require('slim-pig');
-    const formatter = new pig.str.StringFormatter().setTemplate`${0} ${'foo'}!`;
-    const out = formatter.format('Hello', { foo: 'World' });
-    console.log(out); // Hello World!
-    ```
 * file system  
   + FSOptions object  
     - FSOptions.FSFileSystem  
       User provided file system, like the `memfs`, defaults to `fs-extra`.  
     - FSOptions.useNewAPI  
       Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.  
+    - FsOptions.followSymbolic  
+      Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path.  
     - FSOptions.bufferSize  
       `fs.opendir/opendirSync` bufferSize option, defaults to 32.
+  + isSubDirectory  
+    Whether child is a sub directory of parent.  
+  + separateFilesDirs   
+    Async seprate the directories and files, the directory or file must be exist.  
+  + separateFilesDirsSync  
+    Sync seprate the directories and files, the directory or file must be exist. 
   + walk  
-    Async walk throurgh a directory.  
+    Async walk throurgh a pattern.  
+    Note: walk is async but the fileCallback and dirCallback should be sync.  
+    If occurs an error, using `Promise.catch` handle it, e.g. `await walk(...).catch(err => { })`.  
     ```js
     (async function () {
       const pig = require('slim-pig');
@@ -45,7 +37,7 @@
     })();
     ```
   + walkSync  
-    Sync walk throurgh a directory.  
+    Sync walk throurgh a pattern.  
     ```js
     const pig = require('slim-pig');
     const files = [];
@@ -54,13 +46,7 @@
       file => files.push(file)
     );
     console.log(files);
-    ```
-  + isSubDirectory  
-     Whether child is a sub directory of parent.  
-  + separateFilesDirs   
-    Async seprate the directories and files, the directory or file must be exist.  
-  + separateFilesDirsSync  
-    Sync seprate the directories and files, the directory or file must be exist.  
+    ``` 
 * function
   + isAsyncFunction  
     Is async function.  
@@ -93,4 +79,101 @@
     pig.func.runcost(delay, 1000).then(cost => {
       console.log('cost time: ', cost);
     });
+    ```
+* pattern  
+  Some glob pattern tools.  
+  ⚠ Note: all backslashes will be converted to slashes.  
+  + globParent  
+    Extract directory part from the pattern.  
+    The returned directory has no trailing path separator and the first negative symbol `!` will be ignored.  
+    !! If returned directory is a lonly windows device root, keep the trailing path separator.  
+    ```js
+    const { globParent } = require('slim-pig').pattern;
+    console.log(globParent('a/**')); // a
+    console.log(globParent('!a/**')); // a
+    ```
+  + globPart  
+    Extract glob part from the glob pattern.  
+    The returned directory has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
+    ```js
+    const { globPart } = require('slim-pig').pattern;
+    console.log(globPart('a/**')); // **
+    console.log(globPart('!a/**')); // **
+    ```
+  + isAbsolute  
+    Whether an absolute pattern.  
+    If start with windows device root, it's absolute.  
+    If start with slash, only absolute on linux, else platform and unknow pattern are not absolute.  
+    ```js
+    const os = require('os');
+    const isWin32 = os.platform() === 'win32';
+    const { isAbsolute } = require('slim-pig').pattern;
+    console.log(isAbsolute('c:/a')); // true
+    console.log(isAbsolute('a')); // false
+    if (isWin32) {
+      console.log(isAbsolute('/a')); // false
+    } else {
+      console.log(isAbsolute('/a')); // true
+    }
+    ```
+  + isGlob  
+    Is a glob pattern.  
+    All matching features, see: https://github.com/isaacs/minimatch#features.  
+  + isWin32Pattern  
+    Whether a windows pattern.  
+    If start with windows device root, return true, else rely on the platform.  
+    ```js
+    const os = require('os');
+    const isWin32 = os.platform() === 'win32';
+    const { isWin32Pattern } = require('slim-pig').pattern;
+    console.log(isWin32Pattern('c:/a')); // true
+    if (isWin32) {
+      console.log(isWin32Pattern('a')); // true
+      console.log(isWin32Pattern('/a')); // true
+    } else {
+      console.log(isWin32Pattern('a')); // false
+      console.log(isWin32Pattern('/a')); // false
+    }
+    ```
+  + removeLeadingDot  
+    Remove leading dot from pattern.  
+    ```js
+    const { removeLeadingDot } = require('slim-pig').pattern;
+    console.log(removeLeadingDot('')); // ""
+    console.log(removeLeadingDot('./foo')); // "foo"
+    console.log(removeLeadingDot('.')); // "."
+    console.log(removeLeadingDot('./')); // ""
+    console.log(removeLeadingDot('.\\')); // ""
+    ```
+  + resolvePattern  
+    Resolve the pattern to absolute with POSIX path separator.  
+    ```js
+    const os = require('os');
+    const isWin32 = os.platform() === 'win32';
+    const { resolvePattern } = require('slim-pig').pattern;
+    console.log(resolvePattern('c:/', 'c:/')); // c:/
+    console.log(resolvePattern('.', 'c:/')); // c:/
+    console.log(resolvePattern('!*.js', 'c:/a')); // !c:/a/*.js
+    if (!isWin32) {
+      console.log(resolvePattern('/a')); // /a
+      console.log(resolvePattern('a', '/')); // /a
+      console.log(resolvePattern('!*.js', '/a')); // !/a/*.js
+    }
+    ```
+  + unixlike  
+    Convert windows path separator `\` to POSIX separator `/`.  
+    ```js
+    const { unixlike } = require('slim-pig').pattern;
+    const str = `D:\\syc\\project\\nodejs\\hellos\\main.js`
+    console.log(unixlike(str)); // "D:/syc/project/nodejs/hellos/main.js"
+    ```
+* string  
+  + StringFormatter  
+    A simple string formatter that using tagged template.  
+    See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates.  
+    ```js
+    const { StringFormatter } = require('slim-pig').str;
+    const formatter = new StringFormatter().setTemplate`${0} ${'foo'}!`;
+    const out = formatter.format('Hello', { foo: 'World' });
+    console.log(out); //" Hello World!"
     ```

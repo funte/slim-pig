@@ -1,191 +1,22 @@
+import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import * as chai from 'chai';
-const expect = chai.expect;
-import chaiAsPromised from 'chai-as-promised';
-chai.use(chaiAsPromised);
 import * as path from 'path';
 
 import * as fs from '../src/lib/fs';
-import * as str from '../src/lib/str';
 
 describe('fs', function () {
-  describe('#walk', () => {
-    describe('with new API', () => {
-      it('test done operation with file callback', async () => {
-        const files: string[] = [];
-        await fs.walk(path.resolve(__dirname, './fixtures'),
-          // Stop when occurs any file.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          file => { return 'done'; },
-          undefined
-        );
-        expect(files.length).to.equal(0);
-      });
-
-      it('test done operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          // Stop when occurs any directory.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          dir => { return 'done'; }
-        );
-        expect(files.length).to.equal(1);
-      });
-
-      it('test skip operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          dir => {
-            dir = str.unixlike(dir);
-            const tokens = dir.split('/');
-            // Skip sub directory "sub".
-            if (tokens[tokens.length - 1] === 'sub')
-              return 'skip';
-          }
-        );
-        expect(files.length).to.equal(1);
-      });
-    });
-    describe('with old API', () => {
-      it('test done operation with file callback', async () => {
-        const files: string[] = [];
-        await fs.walk(path.resolve(__dirname, './fixtures'),
-          // Stop when occurs any file.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          file => { return 'done'; },
-          undefined,
-          { useNewAPI: false }
-        );
-        expect(files.length).to.equal(0);
-      });
-
-      it('test done operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          // Stop when occurs any directory.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          dir => { return 'done'; },
-          { useNewAPI: false }
-        );
-        expect(files.length).to.equal(1);
-      });
-
-      it('test skip operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          dir => {
-            dir = str.unixlike(dir);
-            const tokens = dir.split('/');
-            // Skip sub directory "sub".
-            if (tokens[tokens.length - 1] === 'sub')
-              return 'skip';
-          },
-          { useNewAPI: false }
-        );
-        expect(files.length).to.equal(1);
-      });
-    });
-  });
-
-  describe('#walkSync', () => {
-    describe('with new API', () => {
-      it('test done operation with file callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          // Stop when occurs any file.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          file => { return 'done'; },
-          undefined
-        );
-        expect(files.length).to.equal(0);
-      });
-
-      it('test done operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          // Stop when occurs any directory.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          dir => { return 'done'; }
-        );
-        expect(files.length).to.equal(1);
-      });
-
-      it('test skip operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          dir => {
-            dir = str.unixlike(dir);
-            const tokens = dir.split('/');
-            // Skip sub directory "sub".
-            if (tokens[tokens.length - 1] === 'sub')
-              return 'skip';
-          }
-        );
-        expect(files.length).to.equal(1);
-      });
-    });
-
-    describe('with old API', () => {
-      it('test done operation with file callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          // Stop when occurs any file.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          file => { return 'done'; },
-          undefined,
-          { useNewAPI: false }
-        );
-        expect(files.length).to.equal(0);
-      });
-
-      it('test done operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          // Stop when occurs any directory.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          dir => { return 'done'; },
-          { useNewAPI: false }
-        );
-        expect(files.length).to.equal(1);
-      });
-
-      it('test skip operation with directory callback', () => {
-        const files: string[] = [];
-        fs.walkSync(path.resolve(__dirname, './fixtures'),
-          file => { files.push(file); },
-          dir => {
-            dir = str.unixlike(dir);
-            const tokens = dir.split('/');
-            // Skip sub directory "sub".
-            if (tokens[tokens.length - 1] === 'sub')
-              return 'skip';
-          },
-          { useNewAPI: false }
-        );
-        expect(files.length).to.equal(1);
-      });
-    });
-  });
-
-  it('#isSubDirectory', () => {
+  it('isSubDirectory', () => {
     const args: Map<string[], boolean> = new Map([
-      [['d:/down', 'd:/'], true],
-      [['/d/down', '/d'], true],
-      [['d:/', 'd:/down'], false],
-      [['/d', '/d/down'], false],
-      [['d:/down', 'd:/down'], false],
-      [['/d/down', '/d/down'], false],
-      [['d:/down/up/../../down', 'd:/'], true],
-      [['/d/down/up/../../down', '/d'], true],
-      [['d:/down', 'd:/down'], false],
-      [['/d/down', '/d/down'], false]
+      [['d:/foo', 'd:/'], true],
+      [['/d/foo', '/d'], true],
+      [['d:/', 'd:/foo'], false],
+      [['/d', '/d/foo'], false],
+      [['d:/foo', 'd:/foo'], false],
+      [['/d/foo', '/d/foo'], false],
+      [['d:/foo/up/../../foo', 'd:/'], true],
+      [['/d/foo/up/../../foo', '/d'], true],
+      [['d:/foo', 'd:/foo'], false],
+      [['/d/foo', '/d/foo'], false]
     ]);
     for (const arg of args.keys()) {
       expect(fs.isSubDirectory(arg[0], arg[1])).to.equal(args.get(arg),
@@ -194,7 +25,7 @@ describe('fs', function () {
     }
   });
 
-  it('#separateFilesDirs', async () => {
+  it('separateFilesDirs', async () => {
     const filesdirs: string[] = [];
     const files: string[] = [];
     const dirs: string[] = [];
@@ -204,7 +35,7 @@ describe('fs', function () {
       file => { filesdirs.push(file); },
       dir => { filesdirs.push(dir); }
     );
-    expect(filesdirs.length).to.equal(3);
+    expect(filesdirs.length).to.equal(5);
 
     await fs.separateFilesDirs(
       filesdirs,
@@ -212,20 +43,20 @@ describe('fs', function () {
       dir => { dirs.push(dir); }
     );
     expect(files.length).to.equal(2);
-    expect(dirs.length).to.equal(1);
+    expect(dirs.length).to.equal(3);
   });
 
-  it('#separateFilesDirsSync', () => {
+  it('separateFilesDirsSync', () => {
     const filesdirs: string[] = [];
     const files: string[] = [];
     const dirs: string[] = [];
 
     fs.walkSync(
-      path.resolve(__dirname, `./fixtures`),
+      path.resolve(__dirname, './fixtures'),
       file => { filesdirs.push(file); },
       dir => { filesdirs.push(dir); }
     );
-    expect(filesdirs.length).to.equal(3);
+    expect(filesdirs.length).to.equal(5);
 
     fs.separateFilesDirsSync(
       filesdirs,
@@ -233,6 +64,294 @@ describe('fs', function () {
       dir => { dirs.push(dir); }
     );
     expect(files.length).to.equal(2);
-    expect(dirs.length).to.equal(1);
+    expect(dirs.length).to.equal(3);
+  });
+
+  describe('walk', () => {
+    describe('with new API', () => {
+      it('walk file', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          path.resolve(__dirname, './fixtures/a/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+      });
+
+      it('walk directory', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(2);
+      })
+
+      it('test done operation with file callback', async () => {
+        const files: string[] = [];
+        await fs.walk(path.resolve(__dirname, './fixtures'),
+          // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          file => { return 'done'; },
+          undefined
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test done operation with directory callback', async () => {
+        const files: string[] = [];
+        await fs.walk(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          // Stop when occurs any directory.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          dir => { return 'done'; }
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test skip operation with directory callback', async () => {
+        const files: string[] = [];
+        await fs.walk(path.resolve(__dirname, './fixtures'),
+          file => {
+            files.push(file);
+          },
+          dir => {
+            // Skip sub directory "a".
+            if (dir.includes('fixtures/a') || dir.includes('fixtures\\a')) {
+              return 'skip';
+            }
+          }
+        );
+        expect(files.length).to.equal(1);
+      });
+    });
+
+    describe('with old API', () => {
+      it('walk file', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          path.resolve(__dirname, './fixtures/a/a.js'),
+          file => { files.push(file); },
+          undefined,
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(1);
+      });
+
+      it('walk directory', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          undefined,
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(2);
+      })
+
+      it('test done operation with file callback', async () => {
+        const files: string[] = [];
+        await fs.walk(path.resolve(__dirname, './fixtures'),
+          // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          file => { return 'done'; },
+          undefined,
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test done operation with directory callback', async () => {
+        const files: string[] = [];
+        await fs.walk(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          // Stop when occurs any directory.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          dir => { return 'done'; },
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test skip operation with directory callback', async () => {
+        const files: string[] = [];
+        await fs.walk(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          dir => {
+            // Skip sub directory "a".
+            if (dir.includes('fixtures/a') || dir.includes('fixtures\\a')) {
+              return 'skip';
+            }
+          },
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(1);
+      });
+    });
+
+    describe('walk glob', () => {
+      it('walk glob', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          path.resolve(__dirname, './fixtures/**/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('a.js');
+      });
+
+      it('walk negative glob', async () => {
+        const files: string[] = [];
+        await fs.walk(
+          '!' + path.resolve(__dirname, './fixtures/**/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('b.js');
+      });
+    });
+  });
+
+  describe('walkSync', () => {
+    describe('with new API', () => {
+      it('walk file', () => {
+        const files: string[] = [];
+        fs.walkSync(
+          path.resolve(__dirname, './fixtures/a/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+      });
+
+      it('walk directory', async () => {
+        const files: string[] = [];
+        fs.walkSync(
+          path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(2);
+      })
+
+      it('test done operation with file callback', () => {
+        const files: string[] = [];
+        fs.walkSync(path.resolve(__dirname, './fixtures'),
+          // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          file => { return 'done'; },
+          undefined
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test done operation with directory callback', () => {
+        const files: string[] = [];
+        fs.walkSync(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          // Stop when occurs any directory.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          dir => { return 'done'; }
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test skip operation with directory callback', () => {
+        const files: string[] = [];
+        fs.walkSync(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          dir => {
+            // Skip sub directory "a".
+            if (dir.includes('fixtures/a') || dir.includes('fixtures\\a')) {
+              return 'skip';
+            }
+          }
+        );
+        expect(files.length).to.equal(1);
+      });
+    });
+
+    describe('with old API', () => {
+      it('walk file', () => {
+        const files: string[] = [];
+        fs.walkSync(
+          path.resolve(__dirname, './fixtures/a/a.js'),
+          file => { files.push(file); },
+          undefined,
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(1);
+      });
+
+      it('walk directory', async () => {
+        const files: string[] = [];
+        fs.walkSync(
+          path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          undefined,
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(2);
+      })
+
+      it('test done operation with file callback', () => {
+        const files: string[] = [];
+        fs.walkSync(path.resolve(__dirname, './fixtures'),
+          // Stop when occurs any file.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          file => { return 'done'; },
+          undefined,
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test done operation with directory callback', () => {
+        const files: string[] = [];
+        fs.walkSync(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          // Stop when occurs any directory.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          dir => { return 'done'; },
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(0);
+      });
+
+      it('test skip operation with directory callback', () => {
+        const files: string[] = [];
+        fs.walkSync(path.resolve(__dirname, './fixtures'),
+          file => { files.push(file); },
+          dir => {
+            // Skip sub directory "a".
+            if (dir.includes('fixtures/a') || dir.includes('fixtures\\a')) {
+              return 'skip';
+            }
+          },
+          { useNewAPI: false }
+        );
+        expect(files.length).to.equal(1);
+      });
+    });
+
+    describe('walk glob', () => {
+      it('walk glob', async () => {
+        const files: string[] = [];
+        fs.walkSync(
+          path.resolve(__dirname, './fixtures/**/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('a.js');
+      });
+
+      it('walk negative glob', async () => {
+        const files: string[] = [];
+        fs.walkSync(
+          '!' + path.resolve(__dirname, './fixtures/**/a.js'),
+          file => { files.push(file); }
+        );
+        expect(files.length).to.equal(1);
+        expect(path.basename(files[0])).to.equal('b.js');
+      });
+    });
   });
 });
