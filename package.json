@@ -15,7 +15,7 @@
     "test:all": "mocha --recursive -require ts-node/register 'test/**/*.test.ts'",
     "test:one": "mocha -require ts-node/register 'test/fs.test.ts'"
   },
-  "author": "高国文 (funte@outlook.com)",
+  "author": "高国文(funte@outlook.com)",
   "homepage": "https://github.com/funte/slim-pig",
   "repository": "https://github.com/funte/slim-pig",
   "license": "MIT",
