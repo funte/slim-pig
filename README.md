@@ -22,7 +22,7 @@
   + separateFilesDirsSync  
     Sync seprate the directories and files, the directory or file must be exist. 
   + walk  
-    Async walk throurgh a pattern.  
+    Async walk through a pattern.  
     Note: walk is async but the fileCallback and dirCallback should be sync.  
     If occurs an error, using `Promise.catch` handle it, e.g. `await walk(...).catch(err => { })`.  
     ```js
@@ -50,7 +50,7 @@
     })();
     ```
   + walkSync  
-    Sync walk throurgh a pattern.  
+    Sync walk through a pattern.  
     ```js
     // Walk all file in CWD.
     const pig = require('slim-pig');

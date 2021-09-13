@@ -197,7 +197,7 @@ const getDirentType = function (
 }
 
 /**
- * Async walk throurgh a pattern.  
+ * Async walk through a pattern.  
  * Note: walk is async but the fileCallback and dirCallback should be sync.  
  * If occurs an error, using `Promise.catch` handle it, e.g. `await walk(...).catch(err => { })`.  
  * @param {string} pattern Pattern to search, could be a file, directory or glob pattern.
@@ -246,7 +246,7 @@ export async function walk(
     pattern: string,
     {
       type = DirentType.UNK,
-      enteredSymbolic = false,
+      inSymbolic = false,
     }
   ): Promise<void> {
     if (op === 'done') return;
@@ -257,7 +257,7 @@ export async function walk(
 
     // Avoid infinite loop.
     if (
-      enteredSymbolic
+      inSymbolic
       && (pattern === rootPattern
         || isSubDirectory(pattern, rootPattern))
     ) {
@@ -274,7 +274,7 @@ export async function walk(
       }
     } else {
       if (type === DirentType.SYMBOLIC) {
-        enteredSymbolic = true;
+        inSymbolic = true;
         type = getDirentType(fs.statSync(pattern));
         pattern = fs.readlinkSync(pattern);
       }
@@ -282,7 +282,7 @@ export async function walk(
       if (type === DirentType.DIR) {
         op = dirCallback(pattern);
         if (op !== 'done' && op !== 'skip') {
-          await walkDirectory(pattern, { enteredSymbolic: enteredSymbolic });
+          await walkDirectory(pattern, { inSymbolic: inSymbolic });
         }
       } else if (type === DirentType.FILE) {
         op = fileCallback(pattern);
@@ -291,7 +291,7 @@ export async function walk(
   }
 
   const walkDirectory = (typeof fs.opendirSync === 'function' && useNewAPI) ?
-    async function (directory: string, { enteredSymbolic = false }): Promise<void> {
+    async function (directory: string, { inSymbolic = false }): Promise<void> {
       // ISSUE: On windows `fs.opendir` behave strange for a symbolic/junction 
       // directory, it's should return a `fs.Dirent` of type symbolic, but actually
       // get directory type.
@@ -301,11 +301,11 @@ export async function walk(
         }
         await walkDirectoryEntry(
           path.join(directory, dirent.name),
-          { enteredSymbolic: enteredSymbolic }
+          { inSymbolic: inSymbolic }
         );
       }
     } :
-    async function (directory: string, { enteredSymbolic = false }): Promise<void> {
+    async function (directory: string, { inSymbolic = false }): Promise<void> {
       for (const dirent of await fs.readdir(directory, { withFileTypes: true })) {
         if (op === 'done') {
           return;
@@ -314,17 +314,17 @@ export async function walk(
         if (type !== DirentType.UNK) {
           await walkDirectoryEntry(
             path.join(directory, dirent.name),
-            { type: type, enteredSymbolic: enteredSymbolic }
+            { type: type, inSymbolic: inSymbolic }
           );
         }
       }
     };
 
-  await walkDirectoryEntry(pattern, { enteredSymbolic: false });
+  await walkDirectoryEntry(pattern, { inSymbolic: false });
 }
 
 /**
- * Sync walk throurgh a pattern.  
+ * Sync walk through a pattern.  
  * @param {string} pattern Pattern to search, could be a file, directory or glob pattern.
  * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
  * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
@@ -371,7 +371,7 @@ export function walkSync(
     pattern: string,
     {
       type = DirentType.UNK,
-      enteredSymbolic = false,
+      inSymbolic = false,
     }
   ): void {
     if (op === 'done') return;
@@ -382,7 +382,7 @@ export function walkSync(
 
     // Avoid infinite loop.
     if (
-      enteredSymbolic
+      inSymbolic
       && (pattern === rootPattern
         || isSubDirectory(pattern, rootPattern))
     ) {
@@ -399,7 +399,7 @@ export function walkSync(
       }
     } else {
       if (type === DirentType.SYMBOLIC) {
-        enteredSymbolic = true;
+        inSymbolic = true;
         type = getDirentType(fs.statSync(pattern));
         pattern = fs.readlinkSync(pattern);
       }
@@ -407,7 +407,7 @@ export function walkSync(
       if (type === DirentType.DIR) {
         op = dirCallback(pattern);
         if (op !== 'done' && op !== 'skip') {
-          walkDirectory(pattern, { enteredSymbolic: enteredSymbolic });
+          walkDirectory(pattern, { inSymbolic: inSymbolic });
         }
       } else if (type === DirentType.FILE) {
         op = fileCallback(pattern);
@@ -416,7 +416,7 @@ export function walkSync(
   }
 
   const walkDirectory = (typeof fs.opendirSync === 'function' && useNewAPI) ?
-    function (directory: string, { enteredSymbolic = false }): void {
+    function (directory: string, { inSymbolic = false }): void {
       const opendir = fs.opendirSync(directory, { bufferSize: bufferSize });
       let dirent;
       while ((dirent = opendir.readSync())) {
@@ -425,22 +425,22 @@ export function walkSync(
         }
         walkDirectoryEntry(
           path.join(directory, dirent.name),
-          { enteredSymbolic: enteredSymbolic }
+          { inSymbolic: inSymbolic }
         );
       }
       opendir.closeSync();
     } :
-    function (directory: string, { enteredSymbolic = false }): void {
+    function (directory: string, { inSymbolic = false }): void {
       for (const dirent of fs.readdirSync(directory, { withFileTypes: true })) {
         if (op === 'done') {
           break;
         }
         walkDirectoryEntry(
           path.join(directory, dirent.name),
-          { enteredSymbolic: enteredSymbolic }
+          { inSymbolic: inSymbolic }
         );
       }
     };
 
-  walkDirectoryEntry(pattern, { enteredSymbolic: false });
+  walkDirectoryEntry(pattern, { inSymbolic: false });
 }
