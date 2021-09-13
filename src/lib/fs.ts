@@ -129,12 +129,11 @@ export function separateFilesDirsSync(
   }
 }
 
-const NEGATION = '!';
 type PatternFilter = (file: string) => boolean;
 const genPatternFilter = (
   pattern: string
 ): [string, PatternFilter] => {
-  // If non glob pattern, `PatternFilter` always return true.
+  // If non glob pattern, pattern filter always return true.
   if (!isGlob(pattern)) {
     return [
       pattern,
@@ -142,23 +141,13 @@ const genPatternFilter = (
     ];
   }
 
-  const negation = (pattern[0] === NEGATION) ? true : false;
-
-  // Extract directory part.
-  const directory = globParent(pattern);
-  // Extract glob part.
-  let glob = globPart(pattern);
-  if (negation) {
-    glob = NEGATION + glob;
-  }
-
-  const relative = isWin32 ? path.win32.relative : path.posix.relative;
-  const re = minimatch.makeRe(glob);
   return [
-    directory,
-    (pattern: string): boolean => {
-      pattern = unixlike(relative(directory, pattern));
-      return re.test(pattern);
+    globParent(pattern),
+    (path: string): boolean => {
+      // Pattern `./test/fixtures/**/*` should match root file index.js, but 
+      // minimatch.makeRe failed, using minimatch.match here.
+      const matchResults = minimatch.match([path], pattern);
+      return matchResults.length !== 0;
     }
   ];
 }

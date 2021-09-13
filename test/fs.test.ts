@@ -35,14 +35,14 @@ describe('fs', function () {
       file => { filesdirs.push(file); },
       dir => { filesdirs.push(dir); }
     );
-    expect(filesdirs.length).to.equal(5);
+    expect(filesdirs.length).to.equal(6);
 
     await fs.separateFilesDirs(
       filesdirs,
       file => { files.push(file); },
       dir => { dirs.push(dir); }
     );
-    expect(files.length).to.equal(2);
+    expect(files.length).to.equal(3);
     expect(dirs.length).to.equal(3);
   });
 
@@ -56,14 +56,14 @@ describe('fs', function () {
       file => { filesdirs.push(file); },
       dir => { filesdirs.push(dir); }
     );
-    expect(filesdirs.length).to.equal(5);
+    expect(filesdirs.length).to.equal(6);
 
     fs.separateFilesDirsSync(
       filesdirs,
       file => { files.push(file); },
       dir => { dirs.push(dir); }
     );
-    expect(files.length).to.equal(2);
+    expect(files.length).to.equal(3);
     expect(dirs.length).to.equal(3);
   });
 
@@ -84,7 +84,7 @@ describe('fs', function () {
           path.resolve(__dirname, './fixtures'),
           file => { files.push(file); }
         );
-        expect(files.length).to.equal(2);
+        expect(files.length).to.equal(3);
       })
 
       it('test done operation with file callback', async () => {
@@ -122,7 +122,7 @@ describe('fs', function () {
             }
           }
         );
-        expect(files.length).to.equal(1);
+        expect(files.length).to.equal(2);
       });
     });
 
@@ -146,7 +146,7 @@ describe('fs', function () {
           undefined,
           { useNewAPI: false }
         );
-        expect(files.length).to.equal(2);
+        expect(files.length).to.equal(3);
       })
 
       it('test done operation with file callback', async () => {
@@ -185,7 +185,7 @@ describe('fs', function () {
           },
           { useNewAPI: false }
         );
-        expect(files.length).to.equal(1);
+        expect(files.length).to.equal(2);
       });
     });
 
@@ -206,8 +206,7 @@ describe('fs', function () {
           '!' + path.resolve(__dirname, './fixtures/**/a.js'),
           file => { files.push(file); }
         );
-        expect(files.length).to.equal(1);
-        expect(path.basename(files[0])).to.equal('b.js');
+        expect(files.length).to.equal(2);
       });
     });
 
@@ -228,9 +227,21 @@ describe('fs', function () {
           '!./test/fixtures/**/a.js',
           file => { files.push(file); }
         );
-        expect(files.length).to.equal(1);
-        expect(path.basename(files[0])).to.equal('b.js');
+        expect(files.length).to.equal(2);
       });
+    });
+
+    it('pattern ./test/fixtures/**/* should match root file index.js', async () => {
+      let found = false;
+      await fs.walk(
+        './test/fixtures/**/*',
+        file => {
+          if (path.basename(file) === 'index.js') {
+            found = true;
+          }
+        }
+      );
+      expect(found).to.true;
     });
   });
 
@@ -251,7 +262,7 @@ describe('fs', function () {
           path.resolve(__dirname, './fixtures'),
           file => { files.push(file); }
         );
-        expect(files.length).to.equal(2);
+        expect(files.length).to.equal(3);
       })
 
       it('test done operation with file callback', () => {
@@ -287,7 +298,7 @@ describe('fs', function () {
             }
           }
         );
-        expect(files.length).to.equal(1);
+        expect(files.length).to.equal(2);
       });
     });
 
@@ -311,7 +322,7 @@ describe('fs', function () {
           undefined,
           { useNewAPI: false }
         );
-        expect(files.length).to.equal(2);
+        expect(files.length).to.equal(3);
       })
 
       it('test done operation with file callback', () => {
@@ -350,7 +361,7 @@ describe('fs', function () {
           },
           { useNewAPI: false }
         );
-        expect(files.length).to.equal(1);
+        expect(files.length).to.equal(2);
       });
     });
 
@@ -371,8 +382,7 @@ describe('fs', function () {
           '!' + path.resolve(__dirname, './fixtures/**/a.js'),
           file => { files.push(file); }
         );
-        expect(files.length).to.equal(1);
-        expect(path.basename(files[0])).to.equal('b.js');
+        expect(files.length).to.equal(2);
       });
     });
 
@@ -393,9 +403,21 @@ describe('fs', function () {
           '!./test/fixtures/**/a.js',
           file => { files.push(file); }
         );
-        expect(files.length).to.equal(1);
-        expect(path.basename(files[0])).to.equal('b.js');
+        expect(files.length).to.equal(2);
       });
+    });
+
+    it('pattern ./test/fixtures/**/* should match root file index.js', () => {
+      let found = false;
+      fs.walkSync(
+        './test/fixtures/**/*',
+        file => {
+          if (path.basename(file) === 'index.js') {
+            found = true;
+          }
+        }
+      );
+      expect(found).to.true;
     });
   });
 });
