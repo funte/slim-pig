@@ -1,12 +1,9 @@
 import * as defaultFs from 'fs-extra';
 import * as minimatch from 'minimatch';
-import * as os from 'os';
-const isWin32 = os.platform() === 'win32';
 import * as path from 'path';
 
 import {
   globParent,
-  globPart,
   isAbsolute,
   isGlob,
   resolvePattern,

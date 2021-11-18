@@ -40,7 +40,7 @@ export function globParent(
     return DOT;
   }
 
-  // Normalize and flip backslash.
+  // Normalize and convert to POSIX path separator..
   // !!Must be unconditional.
   pattern = unixlike(pattern);
 
@@ -66,12 +66,18 @@ export function globParent(
     pattern += SLASH;
   }
 
+  // Convert to win32 path separator if need.
+  if (isWin32) {
+    pattern = pattern.split(SLASH).join(BACKSLASH);
+  }
+
   return pattern;
 }
 
 /**
  * Extract glob part from the glob pattern.  
- * The returned glob has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
+ * The returned glob has no leading, trailing path separator and the first 
+ * negative symbol `!` will be ignored.  
  * @param {string} pattern
  * @returns {string}
  */
@@ -91,7 +97,7 @@ export function globPart(
     return '';
   }
 
-  // Normalize and flip backslash, for aligning directory and pattern.
+  // Normalize and convert to POSIX path separator, for aligning directory and pattern.
   // !!Must be unconditional.
   pattern = unixlike(pattern);
 
@@ -116,6 +122,10 @@ export function globPart(
     }
   }
 
+  // Convert to win32 path separator if need.
+  if (isWin32) {
+    glob = glob.split(SLASH).join(BACKSLASH);
+  }
 
   return glob;
 }
@@ -123,7 +133,8 @@ export function globPart(
 /**
  * Whether an absolute pattern.  
  * If start with windows device root, it's absolute.  
- * If start with slash, only absolute on linux, else platform and unknow pattern are not absolute.  
+ * If start with slash, only absolute on linux, else platform and unknow pattern 
+ * are not absolute.  
  * @param {string} pattern
  * @returns {boolean}
  */
@@ -235,10 +246,11 @@ export function removeLeadingDot(pattern: string): string {
 }
 
 /**
- * Resolve the pattern to absolute with POSIX path separator.
+ * Resolve the pattern to absolute.
  * @param {string} pattern
- * @param {string} [context] An absolute directory used to resolve the relative `pattern` to absolute, defaults to `process.cwd()`.  
- * If `pattern` is absolute, ignore this parameter.  
+ * @param {string} [context] An absolute directory used to resolve the relative 
+ * `pattern` to absolute, defaults to `process.cwd()`.  
+ * If the `pattern` is absolute, ignore this parameter.  
  * @returns {string}
  */
 export function resolvePattern(
@@ -247,24 +259,19 @@ export function resolvePattern(
 ): string {
   const validateAndNormalizeContext = function () {
     if (typeof context !== 'string') {
-      // throw new TypeError('Context must be a string.');
       context = process.cwd();
     }
 
-    // Normalize context.
-    context = unixlike(context);
+    context = path.normalize(context);
 
     if (isGlob(context)) {
       throw new TypeError('Context must be non glob.');
     }
 
-    // if (!(path.posix.isAbsolute(context) || path.win32.isAbsolute(context))) {
-    //   throw new TypeError('Context must be an absolute directory.');
-    // }
     if (!isAbsolute(context)) {
       throw new TypeError('Context must be an absolute directory.');
     }
-  }
+  } /* validateAndNormalizeContext */
 
   if (typeof pattern !== 'string') {
     throw new TypeError('Pattern must be a string.');
@@ -277,9 +284,7 @@ export function resolvePattern(
     pattern = pattern.slice(1);
   }
 
-  // Normalize and flip backslash.
-  // !!Must be unconditional.
-  pattern = unixlike(pattern);
+  pattern = path.normalize(pattern);
 
   let glob = '';
   if (isGlob(pattern)) {
@@ -293,9 +298,9 @@ export function resolvePattern(
 
     // Extract the glob part.
     glob = pattern.slice(directory.length);
-    if (glob !== '') {
+    if (glob !== '' && glob.length > 0) {
       // Remove the leading slash.
-      if (glob[0] === SLASH) {
+      if (isPathSeparator(glob[0])) {
         glob = glob.slice(1);
       }
       // Remove the trailing slash.
@@ -307,18 +312,16 @@ export function resolvePattern(
     pattern = directory;
   }
 
-  // If pattern is relative, join the context.
-  // if (!(path.posix.isAbsolute(pattern) || path.win32.isAbsolute(pattern))) {
   if (!isAbsolute(pattern)) {
     validateAndNormalizeContext();
-    pattern = context + SLASH + pattern;
+    pattern = context + path.sep + pattern;
   }
   // Join glob.
   if (glob !== '') {
-    pattern = pattern + SLASH + glob;
+    // pattern = pattern + SLASH + glob;
+    pattern = pattern + path.sep + glob;
   }
-  // Normalize.
-  pattern = unixlike(pattern);
+  pattern = path.normalize(pattern);
 
   // Add trailing slash for lonly windows device root.
   if (
@@ -326,7 +329,7 @@ export function resolvePattern(
     && isWindowsDeviceRoot(pattern[0])
     && pattern[1] === COLON
   ) {
-    pattern += SLASH;
+    pattern += path.sep;
   }
 
   // Add negation.

@@ -17,167 +17,331 @@ import {
 describe('pattern', function () {
   describe('globParent', function () {
     it('keep the trailing slash for lonly windows device root', function () {
-      expect(globParent('c:')).to.equal('c:/');
-      expect(globParent('c:/')).to.equal('c:/');
-      expect(globParent('c:/a/..')).to.equal('c:/');
+      if (isWin32) {
+        expect(globParent('c:')).to.equal('c:\\');
+        expect(globParent('c:/')).to.equal('c:\\');
+        expect(globParent('c:/a/..')).to.equal('c:\\');
+      } else {
+        expect(globParent('c:')).to.equal('c:/');
+        expect(globParent('c:/')).to.equal('c:/');
+        expect(globParent('c:/a/..')).to.equal('c:/');
+      }
     });
 
     it('non-glob pattern', function () {
-      expect(globParent('')).to.equal('.');
-      expect(globParent('!')).to.equal('.');
+      if (isWin32) {
+        expect(globParent('')).to.equal('.');
+        expect(globParent('!')).to.equal('.');
 
-      expect(globParent('.')).to.equal('.');
-      expect(globParent('..')).to.equal('..');
+        expect(globParent('.')).to.equal('.');
+        expect(globParent('..')).to.equal('..');
 
-      expect(globParent('/')).to.equal('/');
-      expect(globParent('\\')).to.equal('/');
+        expect(globParent('/')).to.equal('\\');
+        expect(globParent('\\')).to.equal('\\');
 
-      expect(globParent('./')).to.equal('.');
-      expect(globParent('.\\')).to.equal('.');
+        expect(globParent('./')).to.equal('.');
+        expect(globParent('.\\')).to.equal('.');
+      } else {
+        expect(globParent('')).to.equal('.');
+        expect(globParent('!')).to.equal('.');
+
+        expect(globParent('.')).to.equal('.');
+        expect(globParent('..')).to.equal('..');
+
+        expect(globParent('/')).to.equal('/');
+        expect(globParent('\\')).to.equal('/');
+
+        expect(globParent('./')).to.equal('.');
+        expect(globParent('.\\')).to.equal('.');
+      }
     });
 
     it('mixing slash and backslash', function () {
-      // Relative.
-      expect(globParent('a\\b\\c')).to.equal('a/b/c');
-      expect(globParent('a/b\\c')).to.equal('a/b/c');
-      expect(globParent('a/b\\\\c')).to.equal('a/b/c');
-      expect(globParent('!a/b\\\\c')).to.equal('a/b/c');
+      if (isWin32) {
+        // Relative.
+        expect(globParent('a\\b\\c')).to.equal('a\\b\\c');
+        expect(globParent('a/b\\c')).to.equal('a\\b\\c');
+        expect(globParent('a/b\\\\c')).to.equal('a\\b\\c');
+        expect(globParent('!a/b\\\\c')).to.equal('a\\b\\c');
 
-      // Start with slash.
-      expect(globParent('//a\\b\\c')).to.equal('/a/b/c');
-      expect(globParent('//a/b\\c')).to.equal('/a/b/c');
-      expect(globParent('//a/b\\\\c')).to.equal('/a/b/c');
-      expect(globParent('!//a/b\\\\c')).to.equal('/a/b/c');
+        // Start with slash.
+        expect(globParent('//a\\b\\c')).to.equal('\\a\\b\\c');
+        expect(globParent('//a/b\\c')).to.equal('\\a\\b\\c');
+        expect(globParent('//a/b\\\\c')).to.equal('\\a\\b\\c');
+        expect(globParent('!//a/b\\\\c')).to.equal('\\a\\b\\c');
 
-      // Start with backslash.
-      expect(globParent('\\\\a\\b\\c')).to.equal('/a/b/c');
-      expect(globParent('\\\\a/b\\c')).to.equal('/a/b/c');
-      expect(globParent('\\\\a/b\\\\c')).to.equal('/a/b/c');
-      expect(globParent('!\\\\a/b\\\\c')).to.equal('/a/b/c');
+        // Start with backslash.
+        expect(globParent('\\\\a\\b\\c')).to.equal('\\a\\b\\c');
+        expect(globParent('\\\\a/b\\c')).to.equal('\\a\\b\\c');
+        expect(globParent('\\\\a/b\\\\c')).to.equal('\\a\\b\\c');
+        expect(globParent('!\\\\a/b\\\\c')).to.equal('\\a\\b\\c');
 
-      // Start with drive number.
-      expect(globParent('c://a\\b\\c')).to.equal('c:/a/b/c');
-      expect(globParent('c://a/b\\c')).to.equal('c:/a/b/c');
-      expect(globParent('c://a/b\\\\c')).to.equal('c:/a/b/c');
-      expect(globParent('!c://a/b\\\\c')).to.equal('c:/a/b/c');
-      expect(globParent('c:\\\\a\\b\\c')).to.equal('c:/a/b/c');
-      expect(globParent('c:\\\\a/b\\c')).to.equal('c:/a/b/c');
-      expect(globParent('c:\\\\a/b\\\\c')).to.equal('c:/a/b/c');
-      expect(globParent('!c:\\\\a/b\\\\c')).to.equal('c:/a/b/c');
+        // Start with drive number.
+        expect(globParent('c://a\\b\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('c://a/b\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('c://a/b\\\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('!c://a/b\\\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('c:\\\\a\\b\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('c:\\\\a/b\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('c:\\\\a/b\\\\c')).to.equal('c:\\a\\b\\c');
+        expect(globParent('!c:\\\\a/b\\\\c')).to.equal('c:\\a\\b\\c');
+      } else {
+        // Relative.
+        expect(globParent('a\\b\\c')).to.equal('a/b/c');
+        expect(globParent('a/b\\c')).to.equal('a/b/c');
+        expect(globParent('a/b\\\\c')).to.equal('a/b/c');
+        expect(globParent('!a/b\\\\c')).to.equal('a/b/c');
+
+        // Start with slash.
+        expect(globParent('//a\\b\\c')).to.equal('/a/b/c');
+        expect(globParent('//a/b\\c')).to.equal('/a/b/c');
+        expect(globParent('//a/b\\\\c')).to.equal('/a/b/c');
+        expect(globParent('!//a/b\\\\c')).to.equal('/a/b/c');
+
+        // Start with backslash.
+        expect(globParent('\\\\a\\b\\c')).to.equal('/a/b/c');
+        expect(globParent('\\\\a/b\\c')).to.equal('/a/b/c');
+        expect(globParent('\\\\a/b\\\\c')).to.equal('/a/b/c');
+        expect(globParent('!\\\\a/b\\\\c')).to.equal('/a/b/c');
+
+        // Start with drive number.
+        expect(globParent('c://a\\b\\c')).to.equal('c:/a/b/c');
+        expect(globParent('c://a/b\\c')).to.equal('c:/a/b/c');
+        expect(globParent('c://a/b\\\\c')).to.equal('c:/a/b/c');
+        expect(globParent('!c://a/b\\\\c')).to.equal('c:/a/b/c');
+        expect(globParent('c:\\\\a\\b\\c')).to.equal('c:/a/b/c');
+        expect(globParent('c:\\\\a/b\\c')).to.equal('c:/a/b/c');
+        expect(globParent('c:\\\\a/b\\\\c')).to.equal('c:/a/b/c');
+        expect(globParent('!c:\\\\a/b\\\\c')).to.equal('c:/a/b/c');
+      }
     });
 
     it('pattern with slash', function () {
-      expect(globParent('/.*')).to.equal('/');
-      expect(globParent('/.*/')).to.equal('/');
-      expect(globParent('a/.*/b')).to.equal('a');
-      expect(globParent('a*/.*/b')).to.equal('.');
-      expect(globParent('*/a/b/c')).to.equal('.');
-      expect(globParent('*')).to.equal('.');
-      expect(globParent('*/')).to.equal('.');
-      expect(globParent('*/*')).to.equal('.');
-      expect(globParent('*/*/')).to.equal('.');
-      expect(globParent('**')).to.equal('.');
-      expect(globParent('**/')).to.equal('.');
-      expect(globParent('**/*')).to.equal('.');
-      expect(globParent('**/*/')).to.equal('.');
-      expect(globParent('/*.js')).to.equal('/');
-      expect(globParent('*.js')).to.equal('.');
-      expect(globParent('**/*.js')).to.equal('.');
-      expect(globParent('{a,b}')).to.equal('.');
-      expect(globParent('/{a,b}')).to.equal('/');
-      expect(globParent('/{a,b}/')).to.equal('/');
-      expect(globParent('(a|b)')).to.equal('.');
-      expect(globParent('/(a|b)')).to.equal('/');
-      expect(globParent('./(a|b)')).to.equal('.');
-      expect(globParent('a/(b c)')).to.equal('a/(b c)'); // not an extglob
-      expect(globParent('a/(b c)/')).to.equal('a/(b c)'); // not an extglob
-      expect(globParent('a/(b c)/d')).to.equal('a/(b c)/d'); // not an extglob
-      expect(globParent('path/to/*.js')).to.equal('path/to');
-      expect(globParent('/root/path/to/*.js')).to.equal('/root/path/to');
-      expect(globParent('chapter/foo [bar]/')).to.equal('chapter');
-      expect(globParent('path/[a-z]')).to.equal('path');
-      expect(globParent('[a-z]')).to.equal('.');
-      expect(globParent('path/{to,from}')).to.equal('path');
-      expect(globParent('path/(to|from)')).to.equal('path');
-      expect(globParent('(foo bar)/subdir/foo.*')).to.equal('(foo bar)/subdir');
-      expect(globParent('path/!(to|from)')).to.equal('path');
-      expect(globParent('path/?(to|from)')).to.equal('path');
-      expect(globParent('path/+(to|from)')).to.equal('path');
-      expect(globParent('path/*(to|from)')).to.equal('path');
-      expect(globParent('path/@(to|from)')).to.equal('path');
+      if (isWin32) {
+        expect(globParent('/.*')).to.equal('\\');
+        expect(globParent('/.*/')).to.equal('\\');
+        expect(globParent('a/.*/b')).to.equal('a');
+        expect(globParent('a*/.*/b')).to.equal('.');
+        expect(globParent('*/a/b/c')).to.equal('.');
+        expect(globParent('*')).to.equal('.');
+        expect(globParent('*/')).to.equal('.');
+        expect(globParent('*/*')).to.equal('.');
+        expect(globParent('*/*/')).to.equal('.');
+        expect(globParent('**')).to.equal('.');
+        expect(globParent('**/')).to.equal('.');
+        expect(globParent('**/*')).to.equal('.');
+        expect(globParent('**/*/')).to.equal('.');
+        expect(globParent('/*.js')).to.equal('\\');
+        expect(globParent('*.js')).to.equal('.');
+        expect(globParent('**/*.js')).to.equal('.');
+        expect(globParent('{a,b}')).to.equal('.');
+        expect(globParent('/{a,b}')).to.equal('\\');
+        expect(globParent('/{a,b}/')).to.equal('\\');
+        expect(globParent('(a|b)')).to.equal('.');
+        expect(globParent('/(a|b)')).to.equal('\\');
+        expect(globParent('./(a|b)')).to.equal('.');
+        expect(globParent('a/(b c)')).to.equal('a\\(b c)'); // not an extglob
+        expect(globParent('a/(b c)/')).to.equal('a\\(b c)'); // not an extglob
+        expect(globParent('a/(b c)/d')).to.equal('a\\(b c)\\d'); // not an extglob
+        expect(globParent('path/to/*.js')).to.equal('path\\to');
+        expect(globParent('/root/path/to/*.js')).to.equal('\\root\\path\\to');
+        expect(globParent('chapter/foo [bar]/')).to.equal('chapter');
+        expect(globParent('path/[a-z]')).to.equal('path');
+        expect(globParent('[a-z]')).to.equal('.');
+        expect(globParent('path/{to,from}')).to.equal('path');
+        expect(globParent('path/(to|from)')).to.equal('path');
+        expect(globParent('(foo bar)/subdir/foo.*')).to.equal('(foo bar)\\subdir');
+        expect(globParent('path/!(to|from)')).to.equal('path');
+        expect(globParent('path/?(to|from)')).to.equal('path');
+        expect(globParent('path/+(to|from)')).to.equal('path');
+        expect(globParent('path/*(to|from)')).to.equal('path');
+        expect(globParent('path/@(to|from)')).to.equal('path');
 
-      expect(globParent('path/!/foo')).to.equal('path/!/foo');
-      expect(globParent('path/?/foo')).to.equal('path/?/foo');
-      expect(globParent('path/+/foo')).to.equal('path/+/foo');
-      expect(globParent('path/*/foo')).to.equal('path');
-      expect(globParent('path/@/foo')).to.equal('path/@/foo');
-      expect(globParent('path/!/foo/')).to.equal('path/!/foo');
-      expect(globParent('path/?/foo/')).to.equal('path/?/foo');
-      expect(globParent('path/+/foo/')).to.equal('path/+/foo');
-      expect(globParent('path/*/foo/')).to.equal('path');
-      expect(globParent('path/@/foo/')).to.equal('path/@/foo');
-      expect(globParent('path/**/*')).to.equal('path');
-      expect(globParent('path/**/subdir/foo.*')).to.equal('path');
-      expect(globParent('path/subdir/**/foo.js')).to.equal('path/subdir');
-      expect(globParent('path/!subdir/foo.js')).to.equal('path/!subdir/foo.js');
-      expect(globParent('path/{foo,bar}/')).to.equal('path');
+        expect(globParent('path/!/foo')).to.equal('path\\!\\foo');
+        expect(globParent('path/?/foo')).to.equal('path\\?\\foo');
+        expect(globParent('path/+/foo')).to.equal('path\\+\\foo');
+        expect(globParent('path/*/foo')).to.equal('path');
+        expect(globParent('path/@/foo')).to.equal('path\\@\\foo');
+        expect(globParent('path/!/foo/')).to.equal('path\\!\\foo');
+        expect(globParent('path/?/foo/')).to.equal('path\\?\\foo');
+        expect(globParent('path/+/foo/')).to.equal('path\\+\\foo');
+        expect(globParent('path/*/foo/')).to.equal('path');
+        expect(globParent('path/@/foo/')).to.equal('path\\@\\foo');
+        expect(globParent('path/**/*')).to.equal('path');
+        expect(globParent('path/**/subdir/foo.*')).to.equal('path');
+        expect(globParent('path/subdir/**/foo.js')).to.equal('path\\subdir');
+        expect(globParent('path/!subdir/foo.js')).to.equal('path\\!subdir\\foo.js');
+        expect(globParent('path/{foo,bar}/')).to.equal('path');
+      } else {
+        expect(globParent('/.*')).to.equal('/');
+        expect(globParent('/.*/')).to.equal('/');
+        expect(globParent('a/.*/b')).to.equal('a');
+        expect(globParent('a*/.*/b')).to.equal('.');
+        expect(globParent('*/a/b/c')).to.equal('.');
+        expect(globParent('*')).to.equal('.');
+        expect(globParent('*/')).to.equal('.');
+        expect(globParent('*/*')).to.equal('.');
+        expect(globParent('*/*/')).to.equal('.');
+        expect(globParent('**')).to.equal('.');
+        expect(globParent('**/')).to.equal('.');
+        expect(globParent('**/*')).to.equal('.');
+        expect(globParent('**/*/')).to.equal('.');
+        expect(globParent('/*.js')).to.equal('/');
+        expect(globParent('*.js')).to.equal('.');
+        expect(globParent('**/*.js')).to.equal('.');
+        expect(globParent('{a,b}')).to.equal('.');
+        expect(globParent('/{a,b}')).to.equal('/');
+        expect(globParent('/{a,b}/')).to.equal('/');
+        expect(globParent('(a|b)')).to.equal('.');
+        expect(globParent('/(a|b)')).to.equal('/');
+        expect(globParent('./(a|b)')).to.equal('.');
+        expect(globParent('a/(b c)')).to.equal('a/(b c)'); // not an extglob
+        expect(globParent('a/(b c)/')).to.equal('a/(b c)'); // not an extglob
+        expect(globParent('a/(b c)/d')).to.equal('a/(b c)/d'); // not an extglob
+        expect(globParent('path/to/*.js')).to.equal('path/to');
+        expect(globParent('/root/path/to/*.js')).to.equal('/root/path/to');
+        expect(globParent('chapter/foo [bar]/')).to.equal('chapter');
+        expect(globParent('path/[a-z]')).to.equal('path');
+        expect(globParent('[a-z]')).to.equal('.');
+        expect(globParent('path/{to,from}')).to.equal('path');
+        expect(globParent('path/(to|from)')).to.equal('path');
+        expect(globParent('(foo bar)/subdir/foo.*')).to.equal('(foo bar)/subdir');
+        expect(globParent('path/!(to|from)')).to.equal('path');
+        expect(globParent('path/?(to|from)')).to.equal('path');
+        expect(globParent('path/+(to|from)')).to.equal('path');
+        expect(globParent('path/*(to|from)')).to.equal('path');
+        expect(globParent('path/@(to|from)')).to.equal('path');
+
+        expect(globParent('path/!/foo')).to.equal('path/!/foo');
+        expect(globParent('path/?/foo')).to.equal('path/?/foo');
+        expect(globParent('path/+/foo')).to.equal('path/+/foo');
+        expect(globParent('path/*/foo')).to.equal('path');
+        expect(globParent('path/@/foo')).to.equal('path/@/foo');
+        expect(globParent('path/!/foo/')).to.equal('path/!/foo');
+        expect(globParent('path/?/foo/')).to.equal('path/?/foo');
+        expect(globParent('path/+/foo/')).to.equal('path/+/foo');
+        expect(globParent('path/*/foo/')).to.equal('path');
+        expect(globParent('path/@/foo/')).to.equal('path/@/foo');
+        expect(globParent('path/**/*')).to.equal('path');
+        expect(globParent('path/**/subdir/foo.*')).to.equal('path');
+        expect(globParent('path/subdir/**/foo.js')).to.equal('path/subdir');
+        expect(globParent('path/!subdir/foo.js')).to.equal('path/!subdir/foo.js');
+        expect(globParent('path/{foo,bar}/')).to.equal('path');
+      }
     });
 
     it('pattern with backslash', function () {
-      expect(globParent('\\.*')).to.equal('/');
-      expect(globParent('\\.*\\')).to.equal('/');
-      expect(globParent('a\\.*\\b')).to.equal('a');
-      expect(globParent('a*\\.*\\b')).to.equal('.');
-      expect(globParent('*\\a\\b\\c')).to.equal('.');
-      expect(globParent('*')).to.equal('.');
-      expect(globParent('*\\')).to.equal('.');
-      expect(globParent('*\\*')).to.equal('.');
-      expect(globParent('*\\*\\')).to.equal('.');
-      expect(globParent('**')).to.equal('.');
-      expect(globParent('**\\')).to.equal('.');
-      expect(globParent('**\\*')).to.equal('.');
-      expect(globParent('**\\*\\')).to.equal('.');
-      expect(globParent('\\*.js')).to.equal('/');
-      expect(globParent('*.js')).to.equal('.');
-      expect(globParent('**\\*.js')).to.equal('.');
-      expect(globParent('{a,b}')).to.equal('.');
-      expect(globParent('\\{a,b}')).to.equal('/');
-      expect(globParent('\\{a,b}\\')).to.equal('/');
-      expect(globParent('(a|b)')).to.equal('.');
-      expect(globParent('\\(a|b)')).to.equal('/');
-      expect(globParent('.\\(a|b)')).to.equal('.');
-      expect(globParent('a\\(b c)')).to.equal('a/(b c)'); // not an extglob
-      expect(globParent('a\\(b c)\\')).to.equal('a/(b c)'); // not an extglob
-      expect(globParent('a\\(b c)\\d')).to.equal('a/(b c)/d'); // not an extglob
-      expect(globParent('path\\to\\*.js')).to.equal('path/to');
-      expect(globParent('\\root\\path\\to\\*.js')).to.equal('/root/path/to');
-      expect(globParent('chapter\\foo [bar]\\')).to.equal('chapter');
-      expect(globParent('path\\[a-z]')).to.equal('path');
-      expect(globParent('[a-z]')).to.equal('.');
-      expect(globParent('path\\{to,from}')).to.equal('path');
-      expect(globParent('path\\(to|from)')).to.equal('path');
-      expect(globParent('path\\(foo bar)\\subdir\\foo.*')).to.equal('path/(foo bar)/subdir');
-      expect(globParent('path\\!(to|from)')).to.equal('path');
-      expect(globParent('path\\?(to|from)')).to.equal('path');
-      expect(globParent('path\\+(to|from)')).to.equal('path');
-      expect(globParent('path\\*(to|from)')).to.equal('path');
-      expect(globParent('path\\@(to|from)')).to.equal('path');
+      if (isWin32) {
+        expect(globParent('\\.*')).to.equal('\\');
+        expect(globParent('\\.*\\')).to.equal('\\');
+        expect(globParent('a\\.*\\b')).to.equal('a');
+        expect(globParent('a*\\.*\\b')).to.equal('.');
+        expect(globParent('*\\a\\b\\c')).to.equal('.');
+        expect(globParent('*')).to.equal('.');
+        expect(globParent('*\\')).to.equal('.');
+        expect(globParent('*\\*')).to.equal('.');
+        expect(globParent('*\\*\\')).to.equal('.');
+        expect(globParent('**')).to.equal('.');
+        expect(globParent('**\\')).to.equal('.');
+        expect(globParent('**\\*')).to.equal('.');
+        expect(globParent('**\\*\\')).to.equal('.');
+        expect(globParent('\\*.js')).to.equal('\\');
+        expect(globParent('*.js')).to.equal('.');
+        expect(globParent('**\\*.js')).to.equal('.');
+        expect(globParent('{a,b}')).to.equal('.');
+        expect(globParent('\\{a,b}')).to.equal('\\');
+        expect(globParent('\\{a,b}\\')).to.equal('\\');
+        expect(globParent('(a|b)')).to.equal('.');
+        expect(globParent('\\(a|b)')).to.equal('\\');
+        expect(globParent('.\\(a|b)')).to.equal('.');
+        expect(globParent('a\\(b c)')).to.equal('a\\(b c)'); // not an extglob
+        expect(globParent('a\\(b c)\\')).to.equal('a\\(b c)'); // not an extglob
+        expect(globParent('a\\(b c)\\d')).to.equal('a\\(b c)\\d'); // not an extglob
+        expect(globParent('path\\to\\*.js')).to.equal('path\\to');
+        expect(globParent('\\root\\path\\to\\*.js')).to.equal('\\root\\path\\to');
+        expect(globParent('chapter\\foo [bar]\\')).to.equal('chapter');
+        expect(globParent('path\\[a-z]')).to.equal('path');
+        expect(globParent('[a-z]')).to.equal('.');
+        expect(globParent('path\\{to,from}')).to.equal('path');
+        expect(globParent('path\\(to|from)')).to.equal('path');
+        expect(globParent('path\\(foo bar)\\subdir\\foo.*')).to.equal('path\\(foo bar)\\subdir');
+        expect(globParent('path\\!(to|from)')).to.equal('path');
+        expect(globParent('path\\?(to|from)')).to.equal('path');
+        expect(globParent('path\\+(to|from)')).to.equal('path');
+        expect(globParent('path\\*(to|from)')).to.equal('path');
+        expect(globParent('path\\@(to|from)')).to.equal('path');
 
-      expect(globParent('path\\!\\foo')).to.equal('path/!/foo');
-      expect(globParent('path\\?\\foo')).to.equal('path/?/foo');
-      expect(globParent('path\\+\\foo')).to.equal('path/+/foo');
-      expect(globParent('path\\*\\foo')).to.equal('path');
-      expect(globParent('path\\@\\foo')).to.equal('path/@/foo');
-      expect(globParent('path\\!\\foo\\')).to.equal('path/!/foo');
-      expect(globParent('path\\?\\foo\\')).to.equal('path/?/foo');
-      expect(globParent('path\\+\\foo\\')).to.equal('path/+/foo');
-      expect(globParent('path\\*\\foo\\')).to.equal('path');
-      expect(globParent('path\\@\\foo\\')).to.equal('path/@/foo');
-      expect(globParent('path\\**\\*')).to.equal('path');
-      expect(globParent('path\\**\\subdir\\foo.*')).to.equal('path');
-      expect(globParent('path\\subdir\\**\\foo.js')).to.equal('path/subdir');
-      expect(globParent('path\\!subdir\\foo.js')).to.equal('path/!subdir/foo.js');
-      expect(globParent('path\\{foo,bar}\\')).to.equal('path');
+        expect(globParent('path\\!\\foo')).to.equal('path\\!\\foo');
+        expect(globParent('path\\?\\foo')).to.equal('path\\?\\foo');
+        expect(globParent('path\\+\\foo')).to.equal('path\\+\\foo');
+        expect(globParent('path\\*\\foo')).to.equal('path');
+        expect(globParent('path\\@\\foo')).to.equal('path\\@\\foo');
+        expect(globParent('path\\!\\foo\\')).to.equal('path\\!\\foo');
+        expect(globParent('path\\?\\foo\\')).to.equal('path\\?\\foo');
+        expect(globParent('path\\+\\foo\\')).to.equal('path\\+\\foo');
+        expect(globParent('path\\*\\foo\\')).to.equal('path');
+        expect(globParent('path\\@\\foo\\')).to.equal('path\\@\\foo');
+        expect(globParent('path\\**\\*')).to.equal('path');
+        expect(globParent('path\\**\\subdir\\foo.*')).to.equal('path');
+        expect(globParent('path\\subdir\\**\\foo.js')).to.equal('path\\subdir');
+        expect(globParent('path\\!subdir\\foo.js')).to.equal('path\\!subdir\\foo.js');
+        expect(globParent('path\\{foo,bar}\\')).to.equal('path');
+      } else {
+        expect(globParent('\\.*')).to.equal('/');
+        expect(globParent('\\.*\\')).to.equal('/');
+        expect(globParent('a\\.*\\b')).to.equal('a');
+        expect(globParent('a*\\.*\\b')).to.equal('.');
+        expect(globParent('*\\a\\b\\c')).to.equal('.');
+        expect(globParent('*')).to.equal('.');
+        expect(globParent('*\\')).to.equal('.');
+        expect(globParent('*\\*')).to.equal('.');
+        expect(globParent('*\\*\\')).to.equal('.');
+        expect(globParent('**')).to.equal('.');
+        expect(globParent('**\\')).to.equal('.');
+        expect(globParent('**\\*')).to.equal('.');
+        expect(globParent('**\\*\\')).to.equal('.');
+        expect(globParent('\\*.js')).to.equal('/');
+        expect(globParent('*.js')).to.equal('.');
+        expect(globParent('**\\*.js')).to.equal('.');
+        expect(globParent('{a,b}')).to.equal('.');
+        expect(globParent('\\{a,b}')).to.equal('/');
+        expect(globParent('\\{a,b}\\')).to.equal('/');
+        expect(globParent('(a|b)')).to.equal('.');
+        expect(globParent('\\(a|b)')).to.equal('/');
+        expect(globParent('.\\(a|b)')).to.equal('.');
+        expect(globParent('a\\(b c)')).to.equal('a/(b c)'); // not an extglob
+        expect(globParent('a\\(b c)\\')).to.equal('a/(b c)'); // not an extglob
+        expect(globParent('a\\(b c)\\d')).to.equal('a/(b c)/d'); // not an extglob
+        expect(globParent('path\\to\\*.js')).to.equal('path/to');
+        expect(globParent('\\root\\path\\to\\*.js')).to.equal('/root/path/to');
+        expect(globParent('chapter\\foo [bar]\\')).to.equal('chapter');
+        expect(globParent('path\\[a-z]')).to.equal('path');
+        expect(globParent('[a-z]')).to.equal('.');
+        expect(globParent('path\\{to,from}')).to.equal('path');
+        expect(globParent('path\\(to|from)')).to.equal('path');
+        expect(globParent('path\\(foo bar)\\subdir\\foo.*')).to.equal('path/(foo bar)/subdir');
+        expect(globParent('path\\!(to|from)')).to.equal('path');
+        expect(globParent('path\\?(to|from)')).to.equal('path');
+        expect(globParent('path\\+(to|from)')).to.equal('path');
+        expect(globParent('path\\*(to|from)')).to.equal('path');
+        expect(globParent('path\\@(to|from)')).to.equal('path');
+
+        expect(globParent('path\\!\\foo')).to.equal('path/!/foo');
+        expect(globParent('path\\?\\foo')).to.equal('path/?/foo');
+        expect(globParent('path\\+\\foo')).to.equal('path/+/foo');
+        expect(globParent('path\\*\\foo')).to.equal('path');
+        expect(globParent('path\\@\\foo')).to.equal('path/@/foo');
+        expect(globParent('path\\!\\foo\\')).to.equal('path/!/foo');
+        expect(globParent('path\\?\\foo\\')).to.equal('path/?/foo');
+        expect(globParent('path\\+\\foo\\')).to.equal('path/+/foo');
+        expect(globParent('path\\*\\foo\\')).to.equal('path');
+        expect(globParent('path\\@\\foo\\')).to.equal('path/@/foo');
+        expect(globParent('path\\**\\*')).to.equal('path');
+        expect(globParent('path\\**\\subdir\\foo.*')).to.equal('path');
+        expect(globParent('path\\subdir\\**\\foo.js')).to.equal('path/subdir');
+        expect(globParent('path\\!subdir\\foo.js')).to.equal('path/!subdir/foo.js');
+        expect(globParent('path\\{foo,bar}\\')).to.equal('path');
+      }
     });
   });
 
@@ -227,205 +391,232 @@ describe('pattern', function () {
     });
 
     it('pattern with slash', function () {
-      expect(globPart('/.*')).to.equal('.*');
-      expect(globPart('/.*/')).to.equal('.*');
-      expect(globPart('a/.*/b')).to.equal('.*/b');
-      expect(globPart('a*/.*/b')).to.equal('a*/.*/b');
-      expect(globPart('*/a/b/c')).to.equal('*/a/b/c');
-      expect(globPart('*')).to.equal('*');
-      expect(globPart('*/')).to.equal('*');
-      expect(globPart('*/*')).to.equal('*/*');
-      expect(globPart('*/*/')).to.equal('*/*');
-      expect(globPart('**')).to.equal('**');
-      expect(globPart('**/')).to.equal('**');
-      expect(globPart('**/*')).to.equal('**/*');
-      expect(globPart('**/*/')).to.equal('**/*');
-      expect(globPart('/*.js')).to.equal('*.js');
-      expect(globPart('*.js')).to.equal('*.js');
-      expect(globPart('**/*.js')).to.equal('**/*.js');
-      expect(globPart('{a,b}')).to.equal('{a,b}');
-      expect(globPart('/{a,b}')).to.equal('{a,b}');
-      expect(globPart('/{a,b}/')).to.equal('{a,b}');
-      expect(globPart('(a|b)')).to.equal('(a|b)');
-      expect(globPart('/(a|b)')).to.equal('(a|b)');
-      expect(globPart('./(a|b)')).to.equal('(a|b)');
-      expect(globPart('a/(b c)')).to.equal(''); // not an extglob
-      expect(globPart('a/(b c)/')).to.equal(''); // not an extglob
-      expect(globPart('a/(b c)/d')).to.equal(''); // not an extglob
-      expect(globPart('path/to/*.js')).to.equal('*.js');
-      expect(globPart('/root/path/to/*.js')).to.equal('*.js');
-      expect(globPart('chapter/foo [bar]/')).to.equal('foo [bar]');
-      expect(globPart('path/[a-z]')).to.equal('[a-z]');
-      expect(globPart('[a-z]')).to.equal('[a-z]');
-      expect(globPart('path/{to,from}')).to.equal('{to,from}');
-      expect(globPart('path/(to|from)')).to.equal('(to|from)');
-      expect(globPart('(foo bar)/subdir/foo.*')).to.equal('foo.*');
-      expect(globPart('path/!(to|from)')).to.equal('!(to|from)');
-      expect(globPart('path/?(to|from)')).to.equal('?(to|from)');
-      expect(globPart('path/+(to|from)')).to.equal('+(to|from)');
-      expect(globPart('path/*(to|from)')).to.equal('*(to|from)');
-      expect(globPart('path/@(to|from)')).to.equal('@(to|from)');
+      if (isWin32) {
+        expect(globPart('/.*')).to.equal('.*');
+        expect(globPart('/.*/')).to.equal('.*');
+        expect(globPart('a/.*/b')).to.equal('.*\\b');
+        expect(globPart('a*/.*/b')).to.equal('a*\\.*\\b');
+        expect(globPart('*/a/b/c')).to.equal('*\\a\\b\\c');
+        expect(globPart('*')).to.equal('*');
+        expect(globPart('*/')).to.equal('*');
+        expect(globPart('*/*')).to.equal('*\\*');
+        expect(globPart('*/*/')).to.equal('*\\*');
+        expect(globPart('**')).to.equal('**');
+        expect(globPart('**/')).to.equal('**');
+        expect(globPart('**/*')).to.equal('**\\*');
+        expect(globPart('**/*/')).to.equal('**\\*');
+        expect(globPart('/*.js')).to.equal('*.js');
+        expect(globPart('*.js')).to.equal('*.js');
+        expect(globPart('**/*.js')).to.equal('**\\*.js');
+        expect(globPart('{a,b}')).to.equal('{a,b}');
+        expect(globPart('/{a,b}')).to.equal('{a,b}');
+        expect(globPart('/{a,b}/')).to.equal('{a,b}');
+        expect(globPart('(a|b)')).to.equal('(a|b)');
+        expect(globPart('/(a|b)')).to.equal('(a|b)');
+        expect(globPart('./(a|b)')).to.equal('(a|b)');
+        expect(globPart('a/(b c)')).to.equal(''); // not an extglob
+        expect(globPart('a/(b c)/')).to.equal(''); // not an extglob
+        expect(globPart('a/(b c)/d')).to.equal(''); // not an extglob
+        expect(globPart('path/to/*.js')).to.equal('*.js');
+        expect(globPart('/root/path/to/*.js')).to.equal('*.js');
+        expect(globPart('chapter/foo [bar]/')).to.equal('foo [bar]');
+        expect(globPart('path/[a-z]')).to.equal('[a-z]');
+        expect(globPart('[a-z]')).to.equal('[a-z]');
+        expect(globPart('path/{to,from}')).to.equal('{to,from}');
+        expect(globPart('path/(to|from)')).to.equal('(to|from)');
+        expect(globPart('(foo bar)/subdir/foo.*')).to.equal('foo.*');
+        expect(globPart('path/!(to|from)')).to.equal('!(to|from)');
+        expect(globPart('path/?(to|from)')).to.equal('?(to|from)');
+        expect(globPart('path/+(to|from)')).to.equal('+(to|from)');
+        expect(globPart('path/*(to|from)')).to.equal('*(to|from)');
+        expect(globPart('path/@(to|from)')).to.equal('@(to|from)');
 
-      expect(globPart('path/!/foo')).to.equal('');
-      expect(globPart('path/?/foo')).to.equal('');
-      expect(globPart('path/+/foo')).to.equal('');
-      expect(globPart('path/*/foo')).to.equal('*/foo');
-      expect(globPart('path/@/foo')).to.equal('');
-      expect(globPart('path/!/foo/')).to.equal('');
-      expect(globPart('path/?/foo/')).to.equal('');
-      expect(globPart('path/+/foo/')).to.equal('');
-      expect(globPart('path/*/foo/')).to.equal('*/foo');
-      expect(globPart('path/@/foo/')).to.equal('');
-      expect(globPart('path/**/*')).to.equal('**/*');
-      expect(globPart('path/**/subdir/foo.*')).to.equal('**/subdir/foo.*');
-      expect(globPart('path/subdir/**/foo.js')).to.equal('**/foo.js');
-      expect(globPart('path/!subdir/foo.js')).to.equal('');
-      expect(globPart('path/{foo,bar}/')).to.equal('{foo,bar}');
+        expect(globPart('path/!/foo')).to.equal('');
+        expect(globPart('path/?/foo')).to.equal('');
+        expect(globPart('path/+/foo')).to.equal('');
+        expect(globPart('path/*/foo')).to.equal('*\\foo');
+        expect(globPart('path/@/foo')).to.equal('');
+        expect(globPart('path/!/foo/')).to.equal('');
+        expect(globPart('path/?/foo/')).to.equal('');
+        expect(globPart('path/+/foo/')).to.equal('');
+        expect(globPart('path/*/foo/')).to.equal('*\\foo');
+        expect(globPart('path/@/foo/')).to.equal('');
+        expect(globPart('path/**/*')).to.equal('**\\*');
+        expect(globPart('path/**/subdir/foo.*')).to.equal('**\\subdir\\foo.*');
+        expect(globPart('path/subdir/**/foo.js')).to.equal('**\\foo.js');
+        expect(globPart('path/!subdir/foo.js')).to.equal('');
+        expect(globPart('path/{foo,bar}/')).to.equal('{foo,bar}');
+      } else {
+        expect(globPart('/.*')).to.equal('.*');
+        expect(globPart('/.*/')).to.equal('.*');
+        expect(globPart('a/.*/b')).to.equal('.*/b');
+        expect(globPart('a*/.*/b')).to.equal('a*/.*/b');
+        expect(globPart('*/a/b/c')).to.equal('*/a/b/c');
+        expect(globPart('*')).to.equal('*');
+        expect(globPart('*/')).to.equal('*');
+        expect(globPart('*/*')).to.equal('*/*');
+        expect(globPart('*/*/')).to.equal('*/*');
+        expect(globPart('**')).to.equal('**');
+        expect(globPart('**/')).to.equal('**');
+        expect(globPart('**/*')).to.equal('**/*');
+        expect(globPart('**/*/')).to.equal('**/*');
+        expect(globPart('/*.js')).to.equal('*.js');
+        expect(globPart('*.js')).to.equal('*.js');
+        expect(globPart('**/*.js')).to.equal('**/*.js');
+        expect(globPart('{a,b}')).to.equal('{a,b}');
+        expect(globPart('/{a,b}')).to.equal('{a,b}');
+        expect(globPart('/{a,b}/')).to.equal('{a,b}');
+        expect(globPart('(a|b)')).to.equal('(a|b)');
+        expect(globPart('/(a|b)')).to.equal('(a|b)');
+        expect(globPart('./(a|b)')).to.equal('(a|b)');
+        expect(globPart('a/(b c)')).to.equal(''); // not an extglob
+        expect(globPart('a/(b c)/')).to.equal(''); // not an extglob
+        expect(globPart('a/(b c)/d')).to.equal(''); // not an extglob
+        expect(globPart('path/to/*.js')).to.equal('*.js');
+        expect(globPart('/root/path/to/*.js')).to.equal('*.js');
+        expect(globPart('chapter/foo [bar]/')).to.equal('foo [bar]');
+        expect(globPart('path/[a-z]')).to.equal('[a-z]');
+        expect(globPart('[a-z]')).to.equal('[a-z]');
+        expect(globPart('path/{to,from}')).to.equal('{to,from}');
+        expect(globPart('path/(to|from)')).to.equal('(to|from)');
+        expect(globPart('(foo bar)/subdir/foo.*')).to.equal('foo.*');
+        expect(globPart('path/!(to|from)')).to.equal('!(to|from)');
+        expect(globPart('path/?(to|from)')).to.equal('?(to|from)');
+        expect(globPart('path/+(to|from)')).to.equal('+(to|from)');
+        expect(globPart('path/*(to|from)')).to.equal('*(to|from)');
+        expect(globPart('path/@(to|from)')).to.equal('@(to|from)');
+
+        expect(globPart('path/!/foo')).to.equal('');
+        expect(globPart('path/?/foo')).to.equal('');
+        expect(globPart('path/+/foo')).to.equal('');
+        expect(globPart('path/*/foo')).to.equal('*/foo');
+        expect(globPart('path/@/foo')).to.equal('');
+        expect(globPart('path/!/foo/')).to.equal('');
+        expect(globPart('path/?/foo/')).to.equal('');
+        expect(globPart('path/+/foo/')).to.equal('');
+        expect(globPart('path/*/foo/')).to.equal('*/foo');
+        expect(globPart('path/@/foo/')).to.equal('');
+        expect(globPart('path/**/*')).to.equal('**/*');
+        expect(globPart('path/**/subdir/foo.*')).to.equal('**/subdir/foo.*');
+        expect(globPart('path/subdir/**/foo.js')).to.equal('**/foo.js');
+        expect(globPart('path/!subdir/foo.js')).to.equal('');
+        expect(globPart('path/{foo,bar}/')).to.equal('{foo,bar}');
+      }
     });
 
     it('pattern with backslash', function () {
-      expect(globPart('\\.*')).to.equal('.*');
-      expect(globPart('\\.*\\')).to.equal('.*');
-      expect(globPart('a\\.*\\b')).to.equal('.*/b');
-      expect(globPart('a*\\.*\\b')).to.equal('a*/.*/b');
-      expect(globPart('*\\a\\b\\c')).to.equal('*/a/b/c');
-      expect(globPart('*')).to.equal('*');
-      expect(globPart('*\\')).to.equal('*');
-      expect(globPart('*\\*')).to.equal('*/*');
-      expect(globPart('*\\*\\')).to.equal('*/*');
-      expect(globPart('**')).to.equal('**');
-      expect(globPart('**\\')).to.equal('**');
-      expect(globPart('**\\*')).to.equal('**/*');
-      expect(globPart('**\\*\\')).to.equal('**/*');
-      expect(globPart('\\*.js')).to.equal('*.js');
-      expect(globPart('*.js')).to.equal('*.js');
-      expect(globPart('**\\*.js')).to.equal('**/*.js');
-      expect(globPart('{a,b}')).to.equal('{a,b}');
-      expect(globPart('\\{a,b}')).to.equal('{a,b}');
-      expect(globPart('\\{a,b}\\')).to.equal('{a,b}');
-      expect(globPart('(a|b)')).to.equal('(a|b)');
-      expect(globPart('\\(a|b)')).to.equal('(a|b)');
-      expect(globPart('.\\(a|b)')).to.equal('(a|b)');
-      expect(globPart('a\\(b c)')).to.equal(''); // not an extglob
-      expect(globPart('a\\(b c)\\')).to.equal(''); // not an extglob
-      expect(globPart('a\\(b c)\\d')).to.equal(''); // not an extglob
-      expect(globPart('path\\to\\*.js')).to.equal('*.js');
-      expect(globPart('\\root\\path\\to\\*.js')).to.equal('*.js');
-      expect(globPart('chapter\\foo [bar]\\')).to.equal('foo [bar]');
-      expect(globPart('path\\[a-z]')).to.equal('[a-z]');
-      expect(globPart('[a-z]')).to.equal('[a-z]');
-      expect(globPart('path\\{to,from}')).to.equal('{to,from}');
-      expect(globPart('path\\(to|from)')).to.equal('(to|from)');
-      expect(globPart('(foo bar)\\subdir\\foo.*')).to.equal('foo.*');
-      expect(globPart('path\\!(to|from)')).to.equal('!(to|from)');
-      expect(globPart('path\\?(to|from)')).to.equal('?(to|from)');
-      expect(globPart('path\\+(to|from)')).to.equal('+(to|from)');
-      expect(globPart('path\\*(to|from)')).to.equal('*(to|from)');
-      expect(globPart('path\\@(to|from)')).to.equal('@(to|from)');
+      if (isWin32) {
+        expect(globPart('\\.*')).to.equal('.*');
+        expect(globPart('\\.*\\')).to.equal('.*');
+        expect(globPart('a\\.*\\b')).to.equal('.*\\b');
+        expect(globPart('a*\\.*\\b')).to.equal('a*\\.*\\b');
+        expect(globPart('*\\a\\b\\c')).to.equal('*\\a\\b\\c');
+        expect(globPart('*')).to.equal('*');
+        expect(globPart('*\\')).to.equal('*');
+        expect(globPart('*\\*')).to.equal('*\\*');
+        expect(globPart('*\\*\\')).to.equal('*\\*');
+        expect(globPart('**')).to.equal('**');
+        expect(globPart('**\\')).to.equal('**');
+        expect(globPart('**\\*')).to.equal('**\\*');
+        expect(globPart('**\\*\\')).to.equal('**\\*');
+        expect(globPart('\\*.js')).to.equal('*.js');
+        expect(globPart('*.js')).to.equal('*.js');
+        expect(globPart('**\\*.js')).to.equal('**\\*.js');
+        expect(globPart('{a,b}')).to.equal('{a,b}');
+        expect(globPart('\\{a,b}')).to.equal('{a,b}');
+        expect(globPart('\\{a,b}\\')).to.equal('{a,b}');
+        expect(globPart('(a|b)')).to.equal('(a|b)');
+        expect(globPart('\\(a|b)')).to.equal('(a|b)');
+        expect(globPart('.\\(a|b)')).to.equal('(a|b)');
+        expect(globPart('a\\(b c)')).to.equal(''); // not an extglob
+        expect(globPart('a\\(b c)\\')).to.equal(''); // not an extglob
+        expect(globPart('a\\(b c)\\d')).to.equal(''); // not an extglob
+        expect(globPart('path\\to\\*.js')).to.equal('*.js');
+        expect(globPart('\\root\\path\\to\\*.js')).to.equal('*.js');
+        expect(globPart('chapter\\foo [bar]\\')).to.equal('foo [bar]');
+        expect(globPart('path\\[a-z]')).to.equal('[a-z]');
+        expect(globPart('[a-z]')).to.equal('[a-z]');
+        expect(globPart('path\\{to,from}')).to.equal('{to,from}');
+        expect(globPart('path\\(to|from)')).to.equal('(to|from)');
+        expect(globPart('(foo bar)\\subdir\\foo.*')).to.equal('foo.*');
+        expect(globPart('path\\!(to|from)')).to.equal('!(to|from)');
+        expect(globPart('path\\?(to|from)')).to.equal('?(to|from)');
+        expect(globPart('path\\+(to|from)')).to.equal('+(to|from)');
+        expect(globPart('path\\*(to|from)')).to.equal('*(to|from)');
+        expect(globPart('path\\@(to|from)')).to.equal('@(to|from)');
 
-      expect(globPart('path\\!\\foo')).to.equal('');
-      expect(globPart('path\\?\\foo')).to.equal('');
-      expect(globPart('path\\+\\foo')).to.equal('');
-      expect(globPart('path\\*\\foo')).to.equal('*/foo');
-      expect(globPart('path\\@\\foo')).to.equal('');
-      expect(globPart('path\\!\\foo\\')).to.equal('');
-      expect(globPart('path\\?\\foo\\')).to.equal('');
-      expect(globPart('path\\+\\foo\\')).to.equal('');
-      expect(globPart('path\\*\\foo\\')).to.equal('*/foo');
-      expect(globPart('path\\@\\foo\\')).to.equal('');
-      expect(globPart('path\\**\\*')).to.equal('**/*');
-      expect(globPart('path\\**\\subdir\\foo.*')).to.equal('**/subdir/foo.*');
-      expect(globPart('path\\subdir\\**\\foo.js')).to.equal('**/foo.js');
-      expect(globPart('path\\!subdir\\foo.js')).to.equal('');
-      expect(globPart('path\\{foo,bar}\\')).to.equal('{foo,bar}');
+        expect(globPart('path\\!\\foo')).to.equal('');
+        expect(globPart('path\\?\\foo')).to.equal('');
+        expect(globPart('path\\+\\foo')).to.equal('');
+        expect(globPart('path\\*\\foo')).to.equal('*\\foo');
+        expect(globPart('path\\@\\foo')).to.equal('');
+        expect(globPart('path\\!\\foo\\')).to.equal('');
+        expect(globPart('path\\?\\foo\\')).to.equal('');
+        expect(globPart('path\\+\\foo\\')).to.equal('');
+        expect(globPart('path\\*\\foo\\')).to.equal('*\\foo');
+        expect(globPart('path\\@\\foo\\')).to.equal('');
+        expect(globPart('path\\**\\*')).to.equal('**\\*');
+        expect(globPart('path\\**\\subdir\\foo.*')).to.equal('**\\subdir\\foo.*');
+        expect(globPart('path\\subdir\\**\\foo.js')).to.equal('**\\foo.js');
+        expect(globPart('path\\!subdir\\foo.js')).to.equal('');
+        expect(globPart('path\\{foo,bar}\\')).to.equal('{foo,bar}');
+      } else {
+        expect(globPart('\\.*')).to.equal('.*');
+        expect(globPart('\\.*\\')).to.equal('.*');
+        expect(globPart('a\\.*\\b')).to.equal('.*/b');
+        expect(globPart('a*\\.*\\b')).to.equal('a*/.*/b');
+        expect(globPart('*\\a\\b\\c')).to.equal('*/a/b/c');
+        expect(globPart('*')).to.equal('*');
+        expect(globPart('*\\')).to.equal('*');
+        expect(globPart('*\\*')).to.equal('*/*');
+        expect(globPart('*\\*\\')).to.equal('*/*');
+        expect(globPart('**')).to.equal('**');
+        expect(globPart('**\\')).to.equal('**');
+        expect(globPart('**\\*')).to.equal('**/*');
+        expect(globPart('**\\*\\')).to.equal('**/*');
+        expect(globPart('\\*.js')).to.equal('*.js');
+        expect(globPart('*.js')).to.equal('*.js');
+        expect(globPart('**\\*.js')).to.equal('**/*.js');
+        expect(globPart('{a,b}')).to.equal('{a,b}');
+        expect(globPart('\\{a,b}')).to.equal('{a,b}');
+        expect(globPart('\\{a,b}\\')).to.equal('{a,b}');
+        expect(globPart('(a|b)')).to.equal('(a|b)');
+        expect(globPart('\\(a|b)')).to.equal('(a|b)');
+        expect(globPart('.\\(a|b)')).to.equal('(a|b)');
+        expect(globPart('a\\(b c)')).to.equal(''); // not an extglob
+        expect(globPart('a\\(b c)\\')).to.equal(''); // not an extglob
+        expect(globPart('a\\(b c)\\d')).to.equal(''); // not an extglob
+        expect(globPart('path\\to\\*.js')).to.equal('*.js');
+        expect(globPart('\\root\\path\\to\\*.js')).to.equal('*.js');
+        expect(globPart('chapter\\foo [bar]\\')).to.equal('foo [bar]');
+        expect(globPart('path\\[a-z]')).to.equal('[a-z]');
+        expect(globPart('[a-z]')).to.equal('[a-z]');
+        expect(globPart('path\\{to,from}')).to.equal('{to,from}');
+        expect(globPart('path\\(to|from)')).to.equal('(to|from)');
+        expect(globPart('(foo bar)\\subdir\\foo.*')).to.equal('foo.*');
+        expect(globPart('path\\!(to|from)')).to.equal('!(to|from)');
+        expect(globPart('path\\?(to|from)')).to.equal('?(to|from)');
+        expect(globPart('path\\+(to|from)')).to.equal('+(to|from)');
+        expect(globPart('path\\*(to|from)')).to.equal('*(to|from)');
+        expect(globPart('path\\@(to|from)')).to.equal('@(to|from)');
+
+        expect(globPart('path\\!\\foo')).to.equal('');
+        expect(globPart('path\\?\\foo')).to.equal('');
+        expect(globPart('path\\+\\foo')).to.equal('');
+        expect(globPart('path\\*\\foo')).to.equal('*/foo');
+        expect(globPart('path\\@\\foo')).to.equal('');
+        expect(globPart('path\\!\\foo\\')).to.equal('');
+        expect(globPart('path\\?\\foo\\')).to.equal('');
+        expect(globPart('path\\+\\foo\\')).to.equal('');
+        expect(globPart('path\\*\\foo\\')).to.equal('*/foo');
+        expect(globPart('path\\@\\foo\\')).to.equal('');
+        expect(globPart('path\\**\\*')).to.equal('**/*');
+        expect(globPart('path\\**\\subdir\\foo.*')).to.equal('**/subdir/foo.*');
+        expect(globPart('path\\subdir\\**\\foo.js')).to.equal('**/foo.js');
+        expect(globPart('path\\!subdir\\foo.js')).to.equal('');
+        expect(globPart('path\\{foo,bar}\\')).to.equal('{foo,bar}');
+      }
     });
-  });
-
-  it('isGlob', function () {
-    // Empty string should return false.
-    expect(isGlob('')).to.false;
-
-    // Non-glob pattern should return false.
-    expect(isGlob('c:/foo\\bar')).to.false;
-    expect(isGlob('/foo\\bar')).to.false;
-    expect(isGlob('c:\\foo\\\\bar')).to.false;
-    expect(isGlob('/foo/\\\\bar')).to.false;
-
-    // Should return true for patterns that include common glob symbols.
-    expect(isGlob('*')).to.true;
-    expect(isGlob('abc/*')).to.true;
-    expect(isGlob('!abc')).to.true;
-
-    // Should return false for single question ?.
-    expect(isGlob('?')).to.false;
-    expect(isGlob('abc/?')).to.false;
-
-    // Should return true for patterns that include regex group symbols.
-    expect(isGlob('(a|)')).to.true;
-    expect(isGlob('(a|b)')).to.true;
-    expect(isGlob('abc/(a|b)')).to.true;
-
-    // Should return true for patterns that include regex character class symbols.
-    expect(isGlob('[abc]')).to.true;
-    expect(isGlob('abc/[abc]')).to.true;
-    expect(isGlob('[^abc]')).to.true;
-    expect(isGlob('abc/[^abc]')).to.true;
-    expect(isGlob('[1-3]')).to.true;
-    expect(isGlob('abc/[1-3]')).to.true;
-    expect(isGlob('[[:alpha:][:digit:]]')).to.true;
-    expect(isGlob('abc/[[:alpha:][:digit:]]')).to.true;
-
-    // Should return true for patterns that include glob extension symbols.
-    expect(isGlob('@()')).to.true;
-    expect(isGlob('@(a)')).to.true;
-    expect(isGlob('@(a|b)')).to.true;
-    expect(isGlob('abc/!(a|b)')).to.true;
-    expect(isGlob('*(a|b)')).to.true;
-    expect(isGlob('?(a|b)')).to.true;
-    expect(isGlob('+(a|b)')).to.true;
-
-    // 'should return true for patterns that include brace expansions symbols.
-    expect(isGlob('{,}')).to.true;
-    expect(isGlob('{a,}')).to.true;
-    expect(isGlob('{,b}')).to.true;
-    expect(isGlob('{a,b}')).to.true;
-    expect(isGlob('{1..3}')).to.true;
-
-    // Should return false for "!" symbols when a symbol is not specified first in the string.
-    expect(isGlob('abc!')).to.false;
-
-    // Should return false for a completely static pattern.
-    expect(isGlob('')).to.false;
-    expect(isGlob('.')).to.false;
-    expect(isGlob('abc')).to.false;
-    expect(isGlob('~abc')).to.false;
-    expect(isGlob('~/abc')).to.false;
-    expect(isGlob('+~/abc')).to.false;
-    expect(isGlob('@.(abc)')).to.false;
-    expect(isGlob('(a b)')).to.false;
-    expect(isGlob('(a b)')).to.false;
-    expect(isGlob('[abc')).to.false;
-
-    // Should return false for unfinished regex character class.
-    expect(isGlob('[')).to.false;
-    expect(isGlob('[abc')).to.false;
-
-    // Should return false for unfinished regex group.
-    expect(isGlob('(a|b')).to.false;
-    expect(isGlob('abc/(a|b')).to.false;
-
-    // Should return false for unfinished glob extension.
-    expect(isGlob('@(')).to.false;
-    expect(isGlob('@(a')).to.false;
-    expect(isGlob('@(a|')).to.false;
-    expect(isGlob('@(a|b')).to.false;
-
-    // Should return false for unfinished brace expansions.
-    expect(isGlob('{')).to.false;
-    expect(isGlob('{a')).to.false;
-    expect(isGlob('{,')).to.false;
-    expect(isGlob('{a,')).to.false;
-    expect(isGlob('{a,b')).to.false;
   });
 
   it('isAbsolute', function () {
@@ -607,6 +798,93 @@ describe('pattern', function () {
       expect(isAbsolute('{a,')).to.false;
       expect(isAbsolute('{a,b')).to.false;
     }
+  });
+
+  it('isGlob', function () {
+    // Empty string should return false.
+    expect(isGlob('')).to.false;
+
+    // Non-glob pattern should return false.
+    expect(isGlob('c:/foo\\bar')).to.false;
+    expect(isGlob('/foo\\bar')).to.false;
+    expect(isGlob('c:\\foo\\\\bar')).to.false;
+    expect(isGlob('/foo/\\\\bar')).to.false;
+
+    // Should return true for patterns that include common glob symbols.
+    expect(isGlob('*')).to.true;
+    expect(isGlob('abc/*')).to.true;
+    expect(isGlob('!abc')).to.true;
+
+    // Should return false for single question ?.
+    expect(isGlob('?')).to.false;
+    expect(isGlob('abc/?')).to.false;
+
+    // Should return true for patterns that include regex group symbols.
+    expect(isGlob('(a|)')).to.true;
+    expect(isGlob('(a|b)')).to.true;
+    expect(isGlob('abc/(a|b)')).to.true;
+
+    // Should return true for patterns that include regex character class symbols.
+    expect(isGlob('[abc]')).to.true;
+    expect(isGlob('abc/[abc]')).to.true;
+    expect(isGlob('[^abc]')).to.true;
+    expect(isGlob('abc/[^abc]')).to.true;
+    expect(isGlob('[1-3]')).to.true;
+    expect(isGlob('abc/[1-3]')).to.true;
+    expect(isGlob('[[:alpha:][:digit:]]')).to.true;
+    expect(isGlob('abc/[[:alpha:][:digit:]]')).to.true;
+
+    // Should return true for patterns that include glob extension symbols.
+    expect(isGlob('@()')).to.true;
+    expect(isGlob('@(a)')).to.true;
+    expect(isGlob('@(a|b)')).to.true;
+    expect(isGlob('abc/!(a|b)')).to.true;
+    expect(isGlob('*(a|b)')).to.true;
+    expect(isGlob('?(a|b)')).to.true;
+    expect(isGlob('+(a|b)')).to.true;
+
+    // 'should return true for patterns that include brace expansions symbols.
+    expect(isGlob('{,}')).to.true;
+    expect(isGlob('{a,}')).to.true;
+    expect(isGlob('{,b}')).to.true;
+    expect(isGlob('{a,b}')).to.true;
+    expect(isGlob('{1..3}')).to.true;
+
+    // Should return false for "!" symbols when a symbol is not specified first in the string.
+    expect(isGlob('abc!')).to.false;
+
+    // Should return false for a completely static pattern.
+    expect(isGlob('')).to.false;
+    expect(isGlob('.')).to.false;
+    expect(isGlob('abc')).to.false;
+    expect(isGlob('~abc')).to.false;
+    expect(isGlob('~/abc')).to.false;
+    expect(isGlob('+~/abc')).to.false;
+    expect(isGlob('@.(abc)')).to.false;
+    expect(isGlob('(a b)')).to.false;
+    expect(isGlob('(a b)')).to.false;
+    expect(isGlob('[abc')).to.false;
+
+    // Should return false for unfinished regex character class.
+    expect(isGlob('[')).to.false;
+    expect(isGlob('[abc')).to.false;
+
+    // Should return false for unfinished regex group.
+    expect(isGlob('(a|b')).to.false;
+    expect(isGlob('abc/(a|b')).to.false;
+
+    // Should return false for unfinished glob extension.
+    expect(isGlob('@(')).to.false;
+    expect(isGlob('@(a')).to.false;
+    expect(isGlob('@(a|')).to.false;
+    expect(isGlob('@(a|b')).to.false;
+
+    // Should return false for unfinished brace expansions.
+    expect(isGlob('{')).to.false;
+    expect(isGlob('{a')).to.false;
+    expect(isGlob('{,')).to.false;
+    expect(isGlob('{a,')).to.false;
+    expect(isGlob('{a,b')).to.false;
   });
 
   it('isWin32Pattern', function () {
@@ -832,7 +1110,7 @@ describe('pattern', function () {
     it('absolute pattern', function () {
       // Non glob.
       if (isWin32) {
-        expect(resolvePattern('c:/')).to.equal('c:/');
+        expect(resolvePattern('c:/')).to.equal('c:\\');
       } else {
         expect(resolvePattern('/')).to.equal('/');
       }
@@ -841,9 +1119,9 @@ describe('pattern', function () {
     it('relative pattern', function () {
       // Non glob pattern.
       if (isWin32) {
-        expect(resolvePattern('.', 'c:/a')).to.equal('c:/a');
-        expect(resolvePattern('..', 'c:/a')).to.equal('c:/');
-        expect(resolvePattern('a', 'c:/')).to.equal('c:/a');
+        expect(resolvePattern('.', 'c:/a')).to.equal('c:\\a');
+        expect(resolvePattern('..', 'c:/a')).to.equal('c:\\');
+        expect(resolvePattern('a', 'c:/')).to.equal('c:\\a');
       } else {
         expect(resolvePattern('.', '/a')).to.equal('/a');
         expect(resolvePattern('..', '/a')).to.equal('/');
@@ -853,80 +1131,80 @@ describe('pattern', function () {
       // Glob pattern.
       if (isWin32) {
         // Patterns that include common glob symbols.
-        expect(resolvePattern('*', 'c:/')).to.equal('c:/*');
-        expect(resolvePattern('abc/*', 'c:/')).to.equal('c:/abc/*');
-        expect(resolvePattern('!abc', 'c:/')).to.equal('!c:/abc');
+        expect(resolvePattern('*', 'c:/')).to.equal('c:\\*');
+        expect(resolvePattern('abc/*', 'c:/')).to.equal('c:\\abc\\*');
+        expect(resolvePattern('!abc', 'c:/')).to.equal('!c:\\abc');
 
         // Single question ?.
-        expect(resolvePattern('?', 'c:/')).to.equal('c:/?');
-        expect(resolvePattern('abc/?', 'c:/')).to.equal('c:/abc/?');
+        expect(resolvePattern('?', 'c:/')).to.equal('c:\\?');
+        expect(resolvePattern('abc/?', 'c:/')).to.equal('c:\\abc\\?');
 
         // Patterns that include regex group symbols.
-        expect(resolvePattern('(a|)', 'c:/')).to.equal('c:/(a|)');
-        expect(resolvePattern('(a|b)', 'c:/')).to.equal('c:/(a|b)');
-        expect(resolvePattern('abc/(a|b)', 'c:/')).to.equal('c:/abc/(a|b)');
+        expect(resolvePattern('(a|)', 'c:/')).to.equal('c:\\(a|)');
+        expect(resolvePattern('(a|b)', 'c:/')).to.equal('c:\\(a|b)');
+        expect(resolvePattern('abc/(a|b)', 'c:/')).to.equal('c:\\abc\\(a|b)');
 
         // Ptterns that include regex character class symbols.
-        expect(resolvePattern('[abc]', 'c:/')).to.equal('c:/[abc]');
-        expect(resolvePattern('abc/[abc]', 'c:/')).to.equal('c:/abc/[abc]');
-        expect(resolvePattern('[^abc]', 'c:/')).to.equal('c:/[^abc]');
-        expect(resolvePattern('abc/[^abc]', 'c:/')).to.equal('c:/abc/[^abc]');
-        expect(resolvePattern('[1-3]', 'c:/')).to.equal('c:/[1-3]');
-        expect(resolvePattern('abc/[1-3]', 'c:/')).to.equal('c:/abc/[1-3]');
-        expect(resolvePattern('[[:alpha:][:digit:]]', 'c:/')).to.equal('c:/[[:alpha:][:digit:]]');
-        expect(resolvePattern('abc/[[:alpha:][:digit:]]', 'c:/')).to.equal('c:/abc/[[:alpha:][:digit:]]');
+        expect(resolvePattern('[abc]', 'c:/')).to.equal('c:\\[abc]');
+        expect(resolvePattern('abc/[abc]', 'c:/')).to.equal('c:\\abc\\[abc]');
+        expect(resolvePattern('[^abc]', 'c:/')).to.equal('c:\\[^abc]');
+        expect(resolvePattern('abc/[^abc]', 'c:/')).to.equal('c:\\abc\\[^abc]');
+        expect(resolvePattern('[1-3]', 'c:/')).to.equal('c:\\[1-3]');
+        expect(resolvePattern('abc/[1-3]', 'c:/')).to.equal('c:\\abc\\[1-3]');
+        expect(resolvePattern('[[:alpha:][:digit:]]', 'c:/')).to.equal('c:\\[[:alpha:][:digit:]]');
+        expect(resolvePattern('abc/[[:alpha:][:digit:]]', 'c:/')).to.equal('c:\\abc\\[[:alpha:][:digit:]]');
 
         // Patterns that include glob extension symbols.
-        expect(resolvePattern('@()', 'c:/')).to.equal('c:/@()');
-        expect(resolvePattern('@(a)', 'c:/')).to.equal('c:/@(a)');
-        expect(resolvePattern('@(a|b)', 'c:/')).to.equal('c:/@(a|b)');
-        expect(resolvePattern('abc/!(a|b)', 'c:/')).to.equal('c:/abc/!(a|b)');
-        expect(resolvePattern('*(a|b)', 'c:/')).to.equal('c:/*(a|b)');
-        expect(resolvePattern('?(a|b)', 'c:/')).to.equal('c:/?(a|b)');
-        expect(resolvePattern('+(a|b)', 'c:/')).to.equal('c:/+(a|b)');
+        expect(resolvePattern('@()', 'c:/')).to.equal('c:\\@()');
+        expect(resolvePattern('@(a)', 'c:/')).to.equal('c:\\@(a)');
+        expect(resolvePattern('@(a|b)', 'c:/')).to.equal('c:\\@(a|b)');
+        expect(resolvePattern('abc/!(a|b)', 'c:/')).to.equal('c:\\abc\\!(a|b)');
+        expect(resolvePattern('*(a|b)', 'c:/')).to.equal('c:\\*(a|b)');
+        expect(resolvePattern('?(a|b)', 'c:/')).to.equal('c:\\?(a|b)');
+        expect(resolvePattern('+(a|b)', 'c:/')).to.equal('c:\\+(a|b)');
 
         // Patterns that include brace expansions symbols.
-        expect(resolvePattern('{,}', 'c:/')).to.equal('c:/{,}');
-        expect(resolvePattern('{a,}', 'c:/')).to.equal('c:/{a,}');
-        expect(resolvePattern('{,b}', 'c:/')).to.equal('c:/{,b}');
-        expect(resolvePattern('{a,b}', 'c:/')).to.equal('c:/{a,b}');
-        expect(resolvePattern('{1..3}', 'c:/')).to.equal('c:/{1..3}');
+        expect(resolvePattern('{,}', 'c:/')).to.equal('c:\\{,}');
+        expect(resolvePattern('{a,}', 'c:/')).to.equal('c:\\{a,}');
+        expect(resolvePattern('{,b}', 'c:/')).to.equal('c:\\{,b}');
+        expect(resolvePattern('{a,b}', 'c:/')).to.equal('c:\\{a,b}');
+        expect(resolvePattern('{1..3}', 'c:/')).to.equal('c:\\{1..3}');
 
         // Pattern with middle `!` symbol.
-        expect(resolvePattern('abc!', 'c:/')).to.equal('c:/abc!');
+        expect(resolvePattern('abc!', 'c:/')).to.equal('c:\\abc!');
 
         // Completely static pattern.
-        expect(resolvePattern('', 'c:/')).to.equal('c:/');
-        expect(resolvePattern('.', 'c:/')).to.equal('c:/');
-        expect(resolvePattern('abc', 'c:/')).to.equal('c:/abc');
-        expect(resolvePattern('~abc', 'c:/')).to.equal('c:/~abc');
-        expect(resolvePattern('~/abc', 'c:/')).to.equal('c:/~/abc');
-        expect(resolvePattern('+~/abc', 'c:/')).to.equal('c:/+~/abc');
-        expect(resolvePattern('@.(abc)', 'c:/')).to.equal('c:/@.(abc)');
-        expect(resolvePattern('(a b)', 'c:/')).to.equal('c:/(a b)');
-        expect(resolvePattern('(a b)', 'c:/')).to.equal('c:/(a b)');
-        expect(resolvePattern('[abc', 'c:/')).to.equal('c:/[abc');
+        expect(resolvePattern('', 'c:/')).to.equal('c:\\');
+        expect(resolvePattern('.', 'c:/')).to.equal('c:\\');
+        expect(resolvePattern('abc', 'c:/')).to.equal('c:\\abc');
+        expect(resolvePattern('~abc', 'c:/')).to.equal('c:\\~abc');
+        expect(resolvePattern('~/abc', 'c:/')).to.equal('c:\\~\\abc');
+        expect(resolvePattern('+~/abc', 'c:/')).to.equal('c:\\+~\\abc');
+        expect(resolvePattern('@.(abc)', 'c:/')).to.equal('c:\\@.(abc)');
+        expect(resolvePattern('(a b)', 'c:/')).to.equal('c:\\(a b)');
+        expect(resolvePattern('(a b)', 'c:/')).to.equal('c:\\(a b)');
+        expect(resolvePattern('[abc', 'c:/')).to.equal('c:\\[abc');
 
         // Unfinished regex character class.
-        expect(resolvePattern('[', 'c:/')).to.equal('c:/[');
-        expect(resolvePattern('[abc', 'c:/')).to.equal('c:/[abc');
+        expect(resolvePattern('[', 'c:/')).to.equal('c:\\[');
+        expect(resolvePattern('[abc', 'c:/')).to.equal('c:\\[abc');
 
         // Unfinished regex group.
-        expect(resolvePattern('(a|b', 'c:/')).to.equal('c:/(a|b');
-        expect(resolvePattern('abc/(a|b', 'c:/')).to.equal('c:/abc/(a|b');
+        expect(resolvePattern('(a|b', 'c:/')).to.equal('c:\\(a|b');
+        expect(resolvePattern('abc/(a|b', 'c:/')).to.equal('c:\\abc\\(a|b');
 
         // Unfinished glob extension.
-        expect(resolvePattern('@(', 'c:/')).to.equal('c:/@(');
-        expect(resolvePattern('@(a', 'c:/')).to.equal('c:/@(a');
-        expect(resolvePattern('@(a|', 'c:/')).to.equal('c:/@(a|');
-        expect(resolvePattern('@(a|b', 'c:/')).to.equal('c:/@(a|b');
+        expect(resolvePattern('@(', 'c:/')).to.equal('c:\\@(');
+        expect(resolvePattern('@(a', 'c:/')).to.equal('c:\\@(a');
+        expect(resolvePattern('@(a|', 'c:/')).to.equal('c:\\@(a|');
+        expect(resolvePattern('@(a|b', 'c:/')).to.equal('c:\\@(a|b');
 
         // Unfinished brace expansions.
-        expect(resolvePattern('{', 'c:/')).to.equal('c:/{');
-        expect(resolvePattern('{a', 'c:/')).to.equal('c:/{a');
-        expect(resolvePattern('{,', 'c:/')).to.equal('c:/{,');
-        expect(resolvePattern('{a,', 'c:/')).to.equal('c:/{a,');
-        expect(resolvePattern('{a,b', 'c:/')).to.equal('c:/{a,b');
+        expect(resolvePattern('{', 'c:/')).to.equal('c:\\{');
+        expect(resolvePattern('{a', 'c:/')).to.equal('c:\\{a');
+        expect(resolvePattern('{,', 'c:/')).to.equal('c:\\{,');
+        expect(resolvePattern('{a,', 'c:/')).to.equal('c:\\{a,');
+        expect(resolvePattern('{a,b', 'c:/')).to.equal('c:\\{a,b');
       } else {
         // Patterns that include common glob symbols.
         expect(resolvePattern('*', '/path/')).to.equal('/path/*');

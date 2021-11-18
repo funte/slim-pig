@@ -170,7 +170,7 @@
     console.log(removeLeadingDot('.\\')); // ""
     ```
   + resolvePattern  
-    Resolve the pattern to absolute with POSIX path separator.  
+    Resolve the pattern to absolute.  
     ```js
     const os = require('os');
     const isWin32 = os.platform() === 'win32';
