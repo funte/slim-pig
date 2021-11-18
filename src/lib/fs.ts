@@ -6,8 +6,7 @@ import {
   globParent,
   isAbsolute,
   isGlob,
-  resolvePattern,
-  unixlike
+  resolvePattern
 } from './pattern';
 
 export type FileCallback = (file: string) => string | void;
@@ -154,7 +153,6 @@ const genWalkCallback = (
   filter: PatternFilter
 ): FileCallback | DirectoryCallback => {
   return (pattern: string): string | undefined => {
-    pattern = unixlike(pattern);
     const op = (callback !== undefined && filter(pattern)) ? callback(pattern) : undefined;
     if (typeof op === 'string') {
       return op.toLowerCase();
@@ -212,9 +210,6 @@ export async function walk(
   if (!isAbsolute(pattern)) {
     pattern = resolvePattern(pattern);
   }
-
-  // Normalize pattern.
-  pattern = unixlike(pattern);
 
   let filter;
   [pattern, filter] = genPatternFilter(pattern);
@@ -337,9 +332,6 @@ export function walkSync(
   if (!isAbsolute(pattern)) {
     pattern = resolvePattern(pattern);
   }
-
-  // Normalize pattern.
-  pattern = unixlike(pattern);
 
   let filter;
   [pattern, filter] = genPatternFilter(pattern);
