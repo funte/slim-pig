@@ -17,6 +17,8 @@
       `fs.opendir/opendirSync` bufferSize option, defaults to 32.
   + isSubDirectory  
     Whether child is a sub directory of parent.  
+  + isSameDirectory  
+    Whether the two directories are same.
   + separateFilesDirs   
     Async seprate the directories and files, the directory or file must be exist.  
   + separateFilesDirsSync  

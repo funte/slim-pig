@@ -18,9 +18,28 @@ describe('fs', function () {
       [['d:/foo', 'd:/foo'], false],
       [['/d/foo', '/d/foo'], false]
     ]);
-    for (const arg of args.keys()) {
-      expect(fs.isSubDirectory(arg[0], arg[1])).to.equal(args.get(arg),
-        `Expect "${arg[0]}" ${args.get(arg) ? 'is' : 'not'} sub directory of "${arg[1]}"`
+    for (const [arg, result] of args.entries()) {
+      expect(fs.isSubDirectory(arg[0], arg[1])).to.equal(result,
+        `Expect "${arg[0]}" ${result ? 'is' : 'not'} sub directory of "${arg[1]}"`
+      );
+    }
+  });
+
+  it('isSameDirectory', () => {
+    const args: Map<string[], boolean> = new Map([
+      [['a', 'a'], true],
+      [['/a', '/a'], true],
+      [['d:/', 'd:/'], true],
+      [['D:/', 'd:/'], true],
+      [['d:', 'd:'], true],
+      [['d:/a/..', 'd:/'], true],
+      [['d:/a/.', 'd:/a'], true],
+      [['.', ''], true],
+      [['a', 'b'], false]
+    ]);
+    for (const [arg, result] of args.entries()) {
+      expect(fs.isSameDirectory(arg[0], arg[1])).to.equal(result,
+        `Expect "${arg[0]}" ${result ? 'is' : 'not'} same to "${arg[1]}"`
       );
     }
   });

@@ -35,11 +35,27 @@ export interface FSOptions {
  * See https://stackoverflow.com/a/45242825/5906199.
  * @param {string} child Sub directory to test.
  * @param {string} parent The parent directory.
- * @return {Boolean}
+ * @return {boolean}
  */
 export function isSubDirectory(child: string, parent: string): boolean {
   const relative = path.relative(parent, child);
   return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
+}
+
+/**
+ * Whether the two directories are same.
+ * @param {string} left
+ * @param {string} right
+ * @return {boolean}
+ */
+export function isSameDirectory(left: string, right: string): boolean {
+  left = resolvePattern(left);
+  right = resolvePattern(right);
+  if (left === right) { return true; }
+  if (!isAbsolute(left) || !isAbsolute(right)) { return false; }
+  if (path.relative(left, right) === '') { return true; }
+
+  return false;
 }
 
 function isValidFileSystem(fs: unknown): boolean {
