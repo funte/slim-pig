@@ -8,9 +8,9 @@
 * file system  
   + FSOptions object  
     - FSOptions.FSFileSystem  
-      User provided file system, like the `memfs`, defaults to `fs-extra`.  
+      User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.  
     - FSOptions.useNewAPI  
-      Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.  
+      Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true. No influence if the user provided file system has no this API.  
     - FsOptions.followSymbolic  
       Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path.  
     - FSOptions.bufferSize  

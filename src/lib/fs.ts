@@ -14,12 +14,12 @@ export type DirectoryCallback = (dir: string) => string | void;
 
 export interface FSFileSystem {
   Dirent: typeof defaultFs.Dirent,
-  opendir: typeof defaultFs.opendir;
-  opendirSync: typeof defaultFs.opendirSync;
+  opendir?: typeof defaultFs.opendir;
+  opendirSync?: typeof defaultFs.opendirSync;
   readdir: typeof defaultFs.readdir;
   readdirSync: typeof defaultFs.readdirSync;
   statSync: typeof defaultFs.statSync;
-  lstatSync: typeof defaultFs.lstatSync;
+  lstatSync?: typeof defaultFs.lstatSync;
   readlinkSync: typeof defaultFs.readlinkSync;
 }
 
@@ -58,14 +58,16 @@ export function isSameDirectory(left: string, right: string): boolean {
   return false;
 }
 
-function isValidFileSystem(fs: unknown): boolean {
-  return Object.prototype.hasOwnProperty.call(fs, 'opendir')
-    && Object.prototype.hasOwnProperty.call(fs, 'opendirSync')
-    && Object.prototype.hasOwnProperty.call(fs, 'readdir')
-    && Object.prototype.hasOwnProperty.call(fs, 'readdirSync')
-    && Object.prototype.hasOwnProperty.call(fs, 'statSync')
-    && Object.prototype.hasOwnProperty.call(fs, 'lstatSync')
-    && Object.prototype.hasOwnProperty.call(fs, 'readlinkSync');
+function hasNewAPI(fs: FSFileSystem): boolean {
+  return typeof fs.opendir === 'function'
+    && typeof fs.opendirSync === 'function';
+}
+
+function isValidFileSystem(fs: FSFileSystem): boolean {
+  return typeof fs.readdir === 'function'
+    && typeof fs.readdirSync === 'function'
+    && typeof fs.statSync === 'function'
+    && typeof fs.readlinkSync === 'function';
 }
 
 /**
@@ -75,7 +77,8 @@ function isValidFileSystem(fs: unknown): boolean {
  * @param {string[]} filesdirs List of directories and files.
  * @param {Function} [fileCallback] Called when occurs file, stop if return "done".
  * @param {Function} [dirCallback] Called when occurs directory, stop if return "done".
- * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
+ * @param {FSOptions} options
+ * @param {FSFileSystem} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
  * @return {void}
  */
 export async function separateFilesDirs(
@@ -116,6 +119,7 @@ export async function separateFilesDirs(
  * @param {string[]} filesdirs List of directories and files.
  * @param {Function} [fileCallback] Called when occurs file, stop if return "done".
  * @param {Function} [dirCallback] Called when occurs directory, stop if return "done".
+ * @param {FSOptions} options
  * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
  * @return {void}
  */
@@ -123,7 +127,7 @@ export function separateFilesDirsSync(
   filesdirs: string[],
   fileCallback: FileCallback = (): void => { return; },
   dirCallback: DirectoryCallback = (): void => { return; },
-  options: FSOptions = {}
+  options: FSOptions = { fs: defaultFs }
 ): void {
   const fs = (options && options.fs && isValidFileSystem(options.fs)) ? options.fs : defaultFs;
 
@@ -203,8 +207,8 @@ const getDirentType = function (
  * @param {string} pattern Pattern to search, could be a file, directory or glob pattern.
  * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
  * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
- * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
- * @param {FSOptions.useNewAPI} [options.useNewAPI] Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.
+ * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.
+ * @param {FSOptions.useNewAPI} [options.useNewAPI] Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true. No influence if the user provided file system has no this API.
  * @param {FSOptions.bufferSize} [options.bufferSize] `fs.opendir/opendirSync` bufferSize option, defaults to 32.
  * @param {FSOptions.followSymbolic} [options.followSymbolic] Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path. 
  * @return {Promise<void>}
@@ -249,14 +253,17 @@ export async function walk(
     if (op === 'done') return;
 
     if (type === DirentType.UNK) {
-      type = getDirentType(fs.lstatSync(pattern));
+      if (typeof fs.lstatSync === 'function') {
+        type = getDirentType(fs.lstatSync(pattern));
+      } else {
+        type = getDirentType(fs.statSync(pattern));
+      }
     }
 
     // Avoid infinite loop.
     if (
       inSymbolic
-      && (pattern === rootPattern
-        || isSubDirectory(pattern, rootPattern))
+      && (pattern === rootPattern || isSubDirectory(pattern, rootPattern))
     ) {
       return;
     }
@@ -287,35 +294,36 @@ export async function walk(
     }
   }
 
-  const walkDirectory = (typeof fs.opendirSync === 'function' && useNewAPI) ?
+  const walkDirectory =
     async function (directory: string, { inSymbolic = false }): Promise<void> {
-      // ISSUE: On windows `fs.opendir` behave strange for a symbolic/junction 
-      // directory, it's should return a `fs.Dirent` of type symbolic, but actually
-      // get directory type.
-      for await (const dirent of await fs.opendir(directory, { bufferSize: bufferSize })) {
-        if (op === 'done') {
-          return;
-        }
-        await walkDirectoryEntry(
-          path.join(directory, dirent.name),
-          { inSymbolic: inSymbolic }
-        );
-      }
-    } :
-    async function (directory: string, { inSymbolic = false }): Promise<void> {
-      for (const dirent of await fs.readdir(directory, { withFileTypes: true })) {
-        if (op === 'done') {
-          return;
-        }
-        const type = getDirentType(dirent);
-        if (type !== DirentType.UNK) {
+      if (typeof fs.opendir === 'function' && useNewAPI) {
+        // ISSUE: On windows `fs.opendir` behave strange for a symbolic/junction 
+        // directory, it's should return a `fs.Dirent` of type symbolic, but actually
+        // get directory type.
+        for await (const dirent of await fs.opendir(directory, { bufferSize: bufferSize })) {
+          if (op === 'done') {
+            return;
+          }
           await walkDirectoryEntry(
             path.join(directory, dirent.name),
-            { type: type, inSymbolic: inSymbolic }
+            { inSymbolic: inSymbolic }
           );
         }
+      } else {
+        for (const dirent of await fs.readdir(directory, { withFileTypes: true })) {
+          if (op === 'done') {
+            return;
+          }
+          const type = getDirentType(dirent);
+          if (type !== DirentType.UNK) {
+            await walkDirectoryEntry(
+              path.join(directory, dirent.name),
+              { type: type, inSymbolic: inSymbolic }
+            );
+          }
+        }
       }
-    };
+    }
 
   await walkDirectoryEntry(pattern, { inSymbolic: false });
 }
@@ -325,7 +333,7 @@ export async function walk(
  * @param {string} pattern Pattern to search, could be a file, directory or glob pattern.
  * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
  * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
- * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
+ * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.
  * @param {FSOptions.useNewAPI} [options.useNewAPI] Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.
  * @param {FSOptions.bufferSize} [options.bufferSize] `fs.opendir/opendirSync` bufferSize option, defaults to 32.
  * @param {FSOptions.followSymbolic} [options.followSymbolic] Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path. 
@@ -371,14 +379,17 @@ export function walkSync(
     if (op === 'done') return;
 
     if (type === DirentType.UNK) {
-      type = getDirentType(fs.lstatSync(pattern));
+      if (typeof fs.lstatSync === 'function') {
+        type = getDirentType(fs.lstatSync(pattern));
+      } else {
+        type = getDirentType(fs.statSync(pattern));
+      }
     }
 
     // Avoid infinite loop.
     if (
       inSymbolic
-      && (pattern === rootPattern
-        || isSubDirectory(pattern, rootPattern))
+      && (pattern === rootPattern || isSubDirectory(pattern, rootPattern))
     ) {
       return;
     }
@@ -409,32 +420,34 @@ export function walkSync(
     }
   }
 
-  const walkDirectory = (typeof fs.opendirSync === 'function' && useNewAPI) ?
+  const walkDirectory =
     function (directory: string, { inSymbolic = false }): void {
-      const opendir = fs.opendirSync(directory, { bufferSize: bufferSize });
-      let dirent;
-      while ((dirent = opendir.readSync())) {
-        if (op === 'done') {
-          break;
+      if (typeof fs.opendirSync === 'function' && useNewAPI) {
+        const opendir = fs.opendirSync(directory, { bufferSize: bufferSize });
+        let dirent;
+        while ((dirent = opendir.readSync())) {
+          if (op === 'done') {
+            break;
+          }
+          walkDirectoryEntry(
+            path.join(directory, dirent.name),
+            { inSymbolic: inSymbolic }
+          );
         }
-        walkDirectoryEntry(
-          path.join(directory, dirent.name),
-          { inSymbolic: inSymbolic }
-        );
-      }
-      opendir.closeSync();
-    } :
-    function (directory: string, { inSymbolic = false }): void {
-      for (const dirent of fs.readdirSync(directory, { withFileTypes: true })) {
-        if (op === 'done') {
-          break;
+        opendir.closeSync();
+      } else {
+        // for (const dirent of fs.readdirSync(directory, { withFileTypes: true })) {
+        for (const dirent of fs.readdirSync(directory)) {
+          if (op === 'done') {
+            break;
+          }
+          walkDirectoryEntry(
+            path.join(directory, dirent),
+            { inSymbolic: inSymbolic }
+          );
         }
-        walkDirectoryEntry(
-          path.join(directory, dirent.name),
-          { inSymbolic: inSymbolic }
-        );
       }
-    };
+    }
 
   walkDirectoryEntry(pattern, { inSymbolic: false });
 }
