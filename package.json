@@ -20,12 +20,12 @@
   "repository": "https://github.com/funte/slim-pig",
   "license": "MIT",
   "dependencies": {
+    "@types/fs-extra": "^9.0.7",
     "fs-extra": "^9.1.0",
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "@types/chai": "^4.2.15",
-    "@types/fs-extra": "^9.0.7",
     "@types/glob-parent": "^5.1.1",
     "@types/minimatch": "^3.0.5",
     "@types/mocha": "^8.2.1",
@@ -41,7 +41,7 @@
   },
   "config": {
     "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
+      "path": "cz-conventional-changelog"
     }
   }
 }
