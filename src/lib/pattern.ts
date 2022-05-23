@@ -19,10 +19,8 @@ function isPathSeparator(char: string): boolean {
 
 /**
  * Extract directory part from the pattern.  
- * The returned directory has no trailing path separator and the first negative symbol `!` will be ignored.  
+ * The returned directory has no trailing path separator and the first negative symbol "!" will be ignored.  
  * !! If returned directory is a lonly windows device root, keep the trailing path separator.  
- * @param {string} [pattern]
- * @returns {string}
  */
 export function globParent(
   pattern: string
@@ -77,9 +75,7 @@ export function globParent(
 /**
  * Extract glob part from the glob pattern.  
  * The returned glob has no leading, trailing path separator and the first 
- * negative symbol `!` will be ignored.  
- * @param {string} pattern
- * @returns {string}
+ * negative symbol "!"" will be ignored.  
  */
 export function globPart(
   pattern: string
@@ -132,11 +128,9 @@ export function globPart(
 
 /**
  * Whether an absolute pattern.  
- * If start with windows device root, it's absolute.  
+ * If start with windows device root, its absolute.  
  * If start with slash, only absolute on linux, else platform and unknow pattern 
  * are not absolute.  
- * @param {string} pattern
- * @returns {boolean}
  */
 export function isAbsolute(pattern: string): boolean {
   // Remove leading negation.
@@ -172,8 +166,6 @@ const BRACE_EXPANSIONS_SYMBOLS_RE = /{.*(?:,|\.\.).*}/;
 /**
  * Is a glob pattern.  
  * All matching features, see: https://github.com/isaacs/minimatch#features.  
- * @param {string} pattern
- * @return {boolean}
  */
 export function isGlob(pattern: string): boolean {
   if (typeof pattern !== 'string') {
@@ -197,8 +189,6 @@ export function isGlob(pattern: string): boolean {
 /**
  * Whether a windows pattern.  
  * If start with windows device root, return true, else rely on the platform.  
- * @param {string} pattern
- * @return {boolean}
  */
 export function isWin32Pattern(pattern: string): boolean {
   // Remove leading negation.
@@ -225,11 +215,7 @@ export function isWin32Pattern(pattern: string): boolean {
   }
 }
 
-/**
- * Remove leading dot from pattern.
- * @param {string} pattern
- * @returns {string}
- */
+/** Remove leading dot from pattern. */
 export function removeLeadingDot(pattern: string): string {
   if (typeof pattern !== 'string') {
     throw new TypeError('Pattern must be a non-empty string.');
@@ -247,11 +233,9 @@ export function removeLeadingDot(pattern: string): string {
 
 /**
  * Resolve the pattern to absolute.
- * @param {string} pattern
- * @param {string} [context] An absolute directory used to resolve the relative 
+ * @param context - An absolute directory used to resolve the relative 
  * `pattern` to absolute, defaults to `process.cwd()`.  
  * If the `pattern` is absolute, ignore this parameter.  
- * @returns {string}
  */
 export function resolvePattern(
   pattern: string,
@@ -340,11 +324,7 @@ export function resolvePattern(
   return pattern;
 }
 
-/**
- * Normalize and convert to POSIX path separator.
- * @param {stirng} pattern
- * @return {string}
- */
+/** Normalize and convert to POSIX path separator. */
 export function unixlike(pattern: string): string {
   if (typeof pattern !== 'string') {
     throw new TypeError('Pattern must be a string.');

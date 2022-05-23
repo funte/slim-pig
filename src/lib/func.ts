@@ -1,8 +1,7 @@
 /**
  * Is async function.
  * See https://stackoverflow.com/a/40539727/5906199.
- * @param {any} func Function to test.
- * @return {boolean}
+ * @param func - Function to test.
  */
 export function isAsyncFunction(func: any): boolean {
   const str = func.toString().trim();
@@ -11,9 +10,8 @@ export function isAsyncFunction(func: any): boolean {
 
 /**
  * Run function and get cost time.
- * @param {any} func Function to run.
- * @param {any[]} args Function arguments.
- * @return {Promise<number>} 
+ * @param func - Function to run.
+ * @param args - Function arguments.
  */
 export async function runcost(func: any, ...args: any[]): Promise<number> {
   let start;

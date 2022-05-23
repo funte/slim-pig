@@ -111,7 +111,7 @@
   ⚠ Note: all backslashes will be converted to slashes.  
   + globParent  
     Extract directory part from the pattern.  
-    The returned directory has no trailing path separator and the first negative symbol `!` will be ignored.  
+    The returned directory has no trailing path separator and the first negative symbol "!" will be ignored.  
     !! If returned directory is a lonly windows device root, keep the trailing path separator.  
     ```js
     const { globParent } = require('slim-pig').pattern;
@@ -120,7 +120,7 @@
     ```
   + globPart  
     Extract glob part from the glob pattern.  
-    The returned glob has no leading, trailing path separator and the first negative symbol `!` will be ignored.  
+    The returned glob has no leading, trailing path separator and the first negative symbol "!" will be ignored.  
     ```js
     const { globPart } = require('slim-pig').pattern;
     console.log(globPart('a/**')); // **

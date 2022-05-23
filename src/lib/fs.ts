@@ -31,23 +31,17 @@ export interface FSOptions {
 }
 
 /**
- * Whether child is a sub directory of parent.
+ * Whether child is a sub directory of parent.  
  * See https://stackoverflow.com/a/45242825/5906199.
- * @param {string} child Sub directory to test.
- * @param {string} parent The parent directory.
- * @return {boolean}
+ * @param child - Sub directory to test.
+ * @param parent - The parent directory.
  */
 export function isSubDirectory(child: string, parent: string): boolean {
   const relative = path.relative(parent, child);
   return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
 }
 
-/**
- * Whether the two directories are same.
- * @param {string} left
- * @param {string} right
- * @return {boolean}
- */
+/** Whether the two directories are same. */
 export function isSameDirectory(left: string, right: string): boolean {
   left = resolvePattern(left);
   right = resolvePattern(right);
@@ -58,11 +52,6 @@ export function isSameDirectory(left: string, right: string): boolean {
   return false;
 }
 
-function hasNewAPI(fs: FSFileSystem): boolean {
-  return typeof fs.opendir === 'function'
-    && typeof fs.opendirSync === 'function';
-}
-
 function isValidFileSystem(fs: FSFileSystem): boolean {
   return typeof fs.readdir === 'function'
     && typeof fs.readdirSync === 'function'
@@ -71,15 +60,13 @@ function isValidFileSystem(fs: FSFileSystem): boolean {
 }
 
 /**
- * Async seprate the directories and files, the directory or file must be exist.
+ * Async seprate the directories and files, the directory or file must be exist.  
  * Note: separateFilesDirs is async but the fileCallback and dirCallback should be sync.  
  * If occurs an error, using `Promise.catch` handle it, e.g. `await separateFilesDirs(...).catch(err => { })`.  
- * @param {string[]} filesdirs List of directories and files.
- * @param {Function} [fileCallback] Called when occurs file, stop if return "done".
- * @param {Function} [dirCallback] Called when occurs directory, stop if return "done".
- * @param {FSOptions} options
- * @param {FSFileSystem} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
- * @return {void}
+ * @param filesdirs - List of directories and files.
+ * @param fileCallback - Called when occurs file, stop if return "done".
+ * @param dirCallback - Called when occurs directory, stop if return "done".
+ * @param options.fs - User provided file system, like the `memfs`, defaults to `fs-extra`.
  */
 export async function separateFilesDirs(
   filesdirs: string[],
@@ -116,12 +103,10 @@ export async function separateFilesDirs(
 
 /**
  * Sync seprate the directories and files, the directory or file must be exist.
- * @param {string[]} filesdirs List of directories and files.
- * @param {Function} [fileCallback] Called when occurs file, stop if return "done".
- * @param {Function} [dirCallback] Called when occurs directory, stop if return "done".
- * @param {FSOptions} options
- * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`.
- * @return {void}
+ * @param filesdirs - List of directories and files.
+ * @param fileCallback - Called when occurs file, stop if return "done".
+ * @param dirCallback - Called when occurs directory, stop if return "done".
+ * @param options.fs - User provided file system, like the `memfs`, defaults to `fs-extra`.
  */
 export function separateFilesDirsSync(
   filesdirs: string[],
@@ -204,14 +189,13 @@ const getDirentType = function (
  * Async walk through a pattern.  
  * Note: walk is async but the fileCallback and dirCallback should be sync.  
  * If occurs an error, using `Promise.catch` handle it, e.g. `await walk(...).catch(err => { })`.  
- * @param {string} pattern Pattern to search, could be a file, directory or glob pattern.
- * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
- * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
- * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.
- * @param {FSOptions.useNewAPI} [options.useNewAPI] Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true. No influence if the user provided file system has no this API.
- * @param {FSOptions.bufferSize} [options.bufferSize] `fs.opendir/opendirSync` bufferSize option, defaults to 32.
- * @param {FSOptions.followSymbolic} [options.followSymbolic] Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path. 
- * @return {Promise<void>}
+ * @param pattern - Pattern to search, could be a file, directory or glob pattern.
+ * @param fileCallback - Called when occurs file, if return "done", stop walking.
+ * @param dirCallback  Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
+ * @param options.fs - User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.
+ * @param options.useNewAPI - Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true. No influence if the user provided file system has no this API.
+ * @param options.bufferSize - `fs.opendir/opendirSync` bufferSize option, defaults to 32.
+ * @param options.followSymbolic - Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path. 
  */
 export async function walk(
   pattern: string,
@@ -330,14 +314,13 @@ export async function walk(
 
 /**
  * Sync walk through a pattern.  
- * @param {string} pattern Pattern to search, could be a file, directory or glob pattern.
- * @param {FileCallback} [fileCallback] Called when occurs file, if return "done", stop walking.
- * @param {DirectoryCallback} [dirCallback] Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
- * @param {FSOptions.fs} [options.fs] User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.
- * @param {FSOptions.useNewAPI} [options.useNewAPI] Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.
- * @param {FSOptions.bufferSize} [options.bufferSize] `fs.opendir/opendirSync` bufferSize option, defaults to 32.
- * @param {FSOptions.followSymbolic} [options.followSymbolic] Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path. 
- * @return {Promise<void>}
+ * @param pattern - Pattern to search, could be a file, directory or glob pattern.
+ * @param fileCallback - Called when occurs file, if return "done", stop walking.
+ * @param dirCallback - Called when occurs directory, if return "done", stop walking; if return "skip", skip this directory.
+ * @param options.fs - User provided file system, like the `memfs`, defaults to `fs-extra`. On windows, some file systems which has no `lstatSync` method will behave strange for a symbolic/junction.
+ * @param options.useNewAPI - Whether use new file sytem API `fs.opendir/opendirSync`, it's little slow than `fs.readdir/readdirSync`, defaults to true.
+ * @param options.bufferSize - `fs.opendir/opendirSync` bufferSize option, defaults to 32.
+ * @param options.followSymbolic - Whether follow the symbolic, if false only return symbolic path, defaults to true return the referenced file and directory path. 
  */
 export function walkSync(
   pattern: string,

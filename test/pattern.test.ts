@@ -686,7 +686,7 @@ describe('pattern', function () {
       expect(isAbsolute('{a,b}')).to.false;
       expect(isAbsolute('{1..3}')).to.false;
 
-      // Pattern with middle `!` symbol.
+      // Pattern with middle "!" symbol.
       expect(isAbsolute('abc!')).to.false;
 
       // Completely static pattern.
@@ -762,7 +762,7 @@ describe('pattern', function () {
       expect(isAbsolute('{a,b}')).to.false;
       expect(isAbsolute('{1..3}')).to.false;
 
-      // Pattern with middle `!` symbol.
+      // Pattern with middle "!" symbol.
       expect(isAbsolute('abc!')).to.false;
 
       // Completely static pattern.
@@ -949,7 +949,7 @@ describe('pattern', function () {
       expect(isWin32Pattern('{a,b}')).to.true;
       expect(isWin32Pattern('{1..3}')).to.true;
 
-      // Pattern with middle `!` symbol.
+      // Pattern with middle "!" symbol.
       expect(isWin32Pattern('abc!')).to.true;
 
       // Completely static pattern.
@@ -1025,7 +1025,7 @@ describe('pattern', function () {
       expect(isWin32Pattern('{a,b}')).to.false;
       expect(isWin32Pattern('{1..3}')).to.false;
 
-      // Pattern with middle `!` symbol.
+      // Pattern with middle "!" symbol.
       expect(isWin32Pattern('abc!')).to.false;
 
       // Completely static pattern.
@@ -1170,7 +1170,7 @@ describe('pattern', function () {
         expect(resolvePattern('{a,b}', 'c:/')).to.equal('c:\\{a,b}');
         expect(resolvePattern('{1..3}', 'c:/')).to.equal('c:\\{1..3}');
 
-        // Pattern with middle `!` symbol.
+        // Pattern with middle "!" symbol.
         expect(resolvePattern('abc!', 'c:/')).to.equal('c:\\abc!');
 
         // Completely static pattern.
@@ -1246,7 +1246,7 @@ describe('pattern', function () {
         expect(resolvePattern('{a,b}', '/path/')).to.equal('/path/{a,b}');
         expect(resolvePattern('{1..3}', '/path/')).to.equal('/path/{1..3}');
 
-        // Pattern with middle `!` symbol.
+        // Pattern with middle "!" symbol.
         expect(resolvePattern('abc!', '/path/')).to.equal('/path/abc!');
 
         // Completely static pattern.

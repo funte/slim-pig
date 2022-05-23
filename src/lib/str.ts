@@ -1,5 +1,5 @@
 /**
- * A simple string formatter that using tagged template.
+ * A simple string formatter that using tagged template.  
  * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates. 
  */
 export class StringFormatter {
