@@ -3,7 +3,7 @@ import * as func from './lib/func';
 import * as str from './lib/str';
 import * as pattern from './lib/pattern';
 
-export {
+export = {
   fs,
   func,
   str,
