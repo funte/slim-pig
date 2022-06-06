@@ -221,6 +221,7 @@ export async function walk(
   dirCallback = genWalkCallback(dirCallback, filter);
 
   const fs = (options && options.fs && isValidFileSystem(options.fs)) ? options.fs : defaultFs;
+  const lstatSync: (file: string) => defaultFs.Dirent | defaultFs.Stats = fs.lstatSync || fs.statSync;
   const useNewAPI = (options && options.useNewAPI === false) ? false : true;
   const bufferSize = (options && typeof options.bufferSize === 'number') ? options.bufferSize : 32;
   const followSymbolic = (options && options.followSymbolic === false) ? false : true;
@@ -236,12 +237,9 @@ export async function walk(
   ): Promise<void> {
     if (op === 'done') return;
 
+
     if (type === DirentType.UNK) {
-      if (typeof fs.lstatSync === 'function') {
-        type = getDirentType(fs.lstatSync(pattern));
-      } else {
-        type = getDirentType(fs.statSync(pattern));
-      }
+      type = getDirentType(lstatSync(pattern));
     }
 
     // Avoid infinite loop.
@@ -263,8 +261,11 @@ export async function walk(
     } else {
       if (type === DirentType.SYMBOLIC) {
         inSymbolic = true;
+        // May be a matryoshka, get the real localtion.
+        while (getDirentType(lstatSync(pattern)) === DirentType.SYMBOLIC) {
+          pattern = fs.readlinkSync(pattern);
+        }
         type = getDirentType(fs.statSync(pattern));
-        pattern = fs.readlinkSync(pattern);
       }
 
       if (type === DirentType.DIR) {
@@ -346,6 +347,7 @@ export function walkSync(
   dirCallback = genWalkCallback(dirCallback, filter);
 
   const fs = (options && options.fs && isValidFileSystem(options.fs)) ? options.fs : defaultFs;
+  const lstatSync: (file: string) => defaultFs.Dirent | defaultFs.Stats = fs.lstatSync || fs.statSync;
   const useNewAPI = (options && options.useNewAPI === false) ? false : true;
   const bufferSize = (options && typeof options.bufferSize === 'number') ? options.bufferSize : 32;
   const followSymbolic = (options && options.followSymbolic === false) ? false : true;
@@ -362,11 +364,7 @@ export function walkSync(
     if (op === 'done') return;
 
     if (type === DirentType.UNK) {
-      if (typeof fs.lstatSync === 'function') {
-        type = getDirentType(fs.lstatSync(pattern));
-      } else {
-        type = getDirentType(fs.statSync(pattern));
-      }
+      type = getDirentType(lstatSync(pattern));
     }
 
     // Avoid infinite loop.
@@ -388,8 +386,11 @@ export function walkSync(
     } else {
       if (type === DirentType.SYMBOLIC) {
         inSymbolic = true;
+        // May be a matryoshka, get the real localtion.
+        while (getDirentType(lstatSync(pattern)) === DirentType.SYMBOLIC) {
+          pattern = fs.readlinkSync(pattern);
+        }
         type = getDirentType(fs.statSync(pattern));
-        pattern = fs.readlinkSync(pattern);
       }
 
       if (type === DirentType.DIR) {
